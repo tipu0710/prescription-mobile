@@ -19,6 +19,21 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    flavorDimensions += "env"
+
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Babosthapotro Dev")
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "Babosthapotro")
+        }
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.babosthapotro.app"
