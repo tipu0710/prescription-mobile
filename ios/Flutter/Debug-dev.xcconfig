@@ -1,0 +1,6 @@
+#include "Debug.xcconfig"
+
+FLUTTER_TARGET=lib/flavors/main_dev.dart
+ASSET_PREFIX=dev
+BUNDLE_DISPLAY_NAME=Babosthapotro Dev
+PRODUCT_BUNDLE_IDENTIFIER=com.babosthapotro.app.dev
