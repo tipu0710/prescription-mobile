@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_theme.dart';
 import 'light_themes.dart';
 import 'dark_themes.dart';
+import 'theme_provider.dart';
 
 enum DeviceType { mobile, tablet }
 
@@ -36,16 +38,23 @@ class ThemeConfig extends InheritedWidget {
   }
 }
 
-class AppThemeBuilder extends StatelessWidget {
+class AppThemeBuilder extends ConsumerWidget {
   final Widget Function(BuildContext context, AppTheme theme) builder;
 
   const AppThemeBuilder({super.key, required this.builder});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     var brightness = MediaQuery.platformBrightnessOf(context);
-    // Or check if there's a user setting overrides
-    bool isDark = brightness == Brightness.dark;
+    bool isDark;
+
+    isDark = switch (themeMode) {
+      .system => brightness == .dark,
+      .dark => true,
+      .light => false,
+    };
 
     var orientation = MediaQuery.orientationOf(context);
     var size = MediaQuery.sizeOf(context);
@@ -55,27 +64,23 @@ class AppThemeBuilder extends StatelessWidget {
     // force "Portrait" (Vertical) styling even if aspect ratio might technically be landscape
     // or if the user considers it "Landscape mode" physically.
     // A standard breakpoint for "Mobile" width is 600.
-    var effectiveOrientation = orientation;
+    Orientation effectiveOrientation = orientation;
     if (size.width < 600) {
-      effectiveOrientation = Orientation.portrait;
+      effectiveOrientation = .portrait;
     }
 
     var shortestSide = size.shortestSide;
-    var deviceType = shortestSide > 600 ? DeviceType.tablet : DeviceType.mobile;
+    DeviceType deviceType = shortestSide > 600 ? .tablet : .mobile;
 
     AppTheme theme = switch ((isDark, deviceType, effectiveOrientation)) {
-      (true, DeviceType.tablet, Orientation.landscape) =>
-        TabletLandscapeDarkTheme(),
-      (true, DeviceType.tablet, _) => TabletPortraitDarkTheme(),
-      (true, DeviceType.mobile, Orientation.landscape) =>
-        MobileLandscapeDarkTheme(),
-      (true, DeviceType.mobile, _) => MobilePortraitDarkTheme(),
-      (false, DeviceType.tablet, Orientation.landscape) =>
-        TabletLandscapeLightTheme(),
-      (false, DeviceType.tablet, _) => TabletPortraitLightTheme(),
-      (false, DeviceType.mobile, Orientation.landscape) =>
-        MobileLandscapeLightTheme(),
-      (false, DeviceType.mobile, _) => MobilePortraitLightTheme(),
+      (true, .tablet, .landscape) => TabletLandscapeDarkTheme(),
+      (true, .tablet, _) => TabletPortraitDarkTheme(),
+      (true, .mobile, .landscape) => MobileLandscapeDarkTheme(),
+      (true, .mobile, _) => MobilePortraitDarkTheme(),
+      (false, .tablet, .landscape) => TabletLandscapeLightTheme(),
+      (false, .tablet, _) => TabletPortraitLightTheme(),
+      (false, .mobile, .landscape) => MobileLandscapeLightTheme(),
+      (false, .mobile, _) => MobilePortraitLightTheme(),
     };
 
     return ThemeConfig(

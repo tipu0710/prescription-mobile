@@ -9,7 +9,7 @@ abstract class EnvironmentConfig {
 
 class DevConfig implements EnvironmentConfig {
   @override
-  Environment get environment => Environment.dev;
+  Environment get environment => .dev;
 
   @override
   String get baseUrl => 'https://dev-cloud-run-service-url';
@@ -17,7 +17,7 @@ class DevConfig implements EnvironmentConfig {
 
 class ProdConfig implements EnvironmentConfig {
   @override
-  Environment get environment => Environment.prod;
+  Environment get environment => .prod;
 
   @override
   String get baseUrl => 'https://prod-cloud-run-service-url';
