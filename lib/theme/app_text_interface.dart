@@ -28,7 +28,4 @@ abstract interface class AppTextInterface {
   TextStyle get labelMedium;
   TextStyle get labelSmall;
 
-  // Custom styles
-  TextStyle get customTitleStyle;
-  TextStyle get customCaptionStyle;
 }

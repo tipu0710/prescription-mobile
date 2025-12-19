@@ -113,10 +113,4 @@ class AppTextStyles implements AppTextInterface {
   TextStyle get labelMedium => _theme.labelMedium;
   @override
   TextStyle get labelSmall => _theme.labelSmall;
-
-  // Custom TextStyles
-  @override
-  TextStyle get customTitleStyle => _theme.customTitleStyle;
-  @override
-  TextStyle get customCaptionStyle => _theme.customCaptionStyle;
 }

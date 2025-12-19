@@ -33,10 +33,6 @@ class HomePage extends StatelessWidget {
           children: [
             Text('Flavor: default', style: context.textStyle.titleLarge),
             const SizedBox(height: 16),
-            Text('Custom Title', style: context.textStyle.customTitleStyle),
-            const SizedBox(height: 8),
-            Text('Custom Caption', style: context.textStyle.customCaptionStyle),
-            const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(8),
               color: context.appColor.customBrandColor,

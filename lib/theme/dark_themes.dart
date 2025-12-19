@@ -176,14 +176,6 @@ class MobilePortraitDarkTheme extends BaseDarkTheme {
       ),
     ),
   );
-
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: primary);
-
-  @override
-  TextStyle get customCaptionStyle =>
-      TextStyle(fontSize: 12, color: mutedForeground);
 }
 
 // Mobile Landscape Dark
@@ -199,14 +191,6 @@ class MobileLandscapeDarkTheme extends BaseDarkTheme {
       ),
     ),
   );
-
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: primary);
-
-  @override
-  TextStyle get customCaptionStyle =>
-      TextStyle(fontSize: 11, color: mutedForeground);
 }
 
 // Tablet Portrait Dark
@@ -222,19 +206,7 @@ class TabletPortraitDarkTheme extends BaseDarkTheme {
       ),
     ),
   );
-
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: primary);
-
-  @override
-  TextStyle get customCaptionStyle =>
-      TextStyle(fontSize: 14, color: mutedForeground);
 }
 
 // Tablet Landscape Dark
-class TabletLandscapeDarkTheme extends TabletPortraitDarkTheme {
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: primary);
-}
+class TabletLandscapeDarkTheme extends TabletPortraitDarkTheme {}

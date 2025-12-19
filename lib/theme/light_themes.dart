@@ -172,13 +172,6 @@ class MobilePortraitLightTheme extends BaseLightTheme {
     ),
   );
 
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: primary);
-
-  @override
-  TextStyle get customCaptionStyle =>
-      TextStyle(fontSize: 12, color: mutedForeground);
 }
 
 // Mobile Landscape Light
@@ -191,13 +184,6 @@ class MobileLandscapeLightTheme extends BaseLightTheme {
     ),
   );
 
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: primary);
-
-  @override
-  TextStyle get customCaptionStyle =>
-      TextStyle(fontSize: 11, color: mutedForeground);
 }
 
 // Tablet Portrait Light
@@ -210,22 +196,9 @@ class TabletPortraitLightTheme extends BaseLightTheme {
     ),
   );
 
-  @override
-  TextStyle get customTitleStyle =>
-      TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: primary);
-
-  @override
-  TextStyle get customCaptionStyle =>
-      TextStyle(fontSize: 14, color: mutedForeground);
 }
 
 // Tablet Landscape Light
 class TabletLandscapeLightTheme extends TabletPortraitLightTheme {
   // Can inherit or override further
-  @override
-  TextStyle get customTitleStyle => TextStyle(
-    fontSize: 36, // Even bigger on landscape tablet
-    fontWeight: FontWeight.w900,
-    color: primary,
-  );
 }
