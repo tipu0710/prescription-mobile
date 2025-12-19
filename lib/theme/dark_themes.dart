@@ -41,6 +41,108 @@ abstract class BaseDarkTheme extends AppTheme {
   @override
   Color get ring => const Color(0xFF2563EB);
 
+  // --- Typography Implementation ---
+
+  // Display
+  @override
+  TextStyle get displayLarge => GoogleFonts.roboto(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: foreground,
+  );
+  @override
+  TextStyle get displayMedium => GoogleFonts.roboto(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+    color: foreground,
+  );
+  @override
+  TextStyle get displaySmall => GoogleFonts.roboto(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: foreground,
+  );
+
+  // Headline
+  @override
+  TextStyle get headlineLarge => GoogleFonts.roboto(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: foreground,
+  );
+  @override
+  TextStyle get headlineMedium => GoogleFonts.roboto(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: foreground,
+  );
+  @override
+  TextStyle get headlineSmall => GoogleFonts.roboto(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: foreground,
+  );
+
+  // Title
+  @override
+  TextStyle get titleLarge => GoogleFonts.roboto(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: foreground,
+  );
+  @override
+  TextStyle get titleMedium => GoogleFonts.roboto(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: foreground,
+  );
+  @override
+  TextStyle get titleSmall => GoogleFonts.roboto(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: foreground,
+  );
+
+  // Body
+  @override
+  TextStyle get bodyLarge => GoogleFonts.roboto(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    color: foreground,
+  );
+  @override
+  TextStyle get bodyMedium => GoogleFonts.roboto(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: foreground,
+  );
+  @override
+  TextStyle get bodySmall => GoogleFonts.roboto(
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    color: mutedForeground,
+  );
+
+  // Label
+  @override
+  TextStyle get labelLarge => GoogleFonts.roboto(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: foreground,
+  );
+  @override
+  TextStyle get labelMedium => GoogleFonts.roboto(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: foreground,
+  );
+  @override
+  TextStyle get labelSmall => GoogleFonts.roboto(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: mutedForeground,
+  );
+
   @override
   ColorScheme get colorScheme => ColorScheme.dark(
     primary: primary,

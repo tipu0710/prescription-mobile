@@ -79,21 +79,40 @@ class AppTextStyles implements AppTextInterface {
   @override
   TextTheme get textTheme => _theme.textTheme;
 
-  TextStyle? get displayLarge => _theme.textTheme.displayLarge;
-  TextStyle? get displayMedium => _theme.textTheme.displayMedium;
-  TextStyle? get displaySmall => _theme.textTheme.displaySmall;
-  TextStyle? get headlineLarge => _theme.textTheme.headlineLarge;
-  TextStyle? get headlineMedium => _theme.textTheme.headlineMedium;
-  TextStyle? get headlineSmall => _theme.textTheme.headlineSmall;
-  TextStyle? get titleLarge => _theme.textTheme.titleLarge;
-  TextStyle? get titleMedium => _theme.textTheme.titleMedium;
-  TextStyle? get titleSmall => _theme.textTheme.titleSmall;
-  TextStyle? get bodyLarge => _theme.textTheme.bodyLarge;
-  TextStyle? get bodyMedium => _theme.textTheme.bodyMedium;
-  TextStyle? get bodySmall => _theme.textTheme.bodySmall;
-  TextStyle? get labelLarge => _theme.textTheme.labelLarge;
-  TextStyle? get labelMedium => _theme.textTheme.labelMedium;
-  TextStyle? get labelSmall => _theme.textTheme.labelSmall;
+  @override
+  TextStyle get displayLarge => _theme.displayLarge;
+  @override
+  TextStyle get displayMedium => _theme.displayMedium;
+  @override
+  TextStyle get displaySmall => _theme.displaySmall;
+
+  @override
+  TextStyle get headlineLarge => _theme.headlineLarge;
+  @override
+  TextStyle get headlineMedium => _theme.headlineMedium;
+  @override
+  TextStyle get headlineSmall => _theme.headlineSmall;
+
+  @override
+  TextStyle get titleLarge => _theme.titleLarge;
+  @override
+  TextStyle get titleMedium => _theme.titleMedium;
+  @override
+  TextStyle get titleSmall => _theme.titleSmall;
+
+  @override
+  TextStyle get bodyLarge => _theme.bodyLarge;
+  @override
+  TextStyle get bodyMedium => _theme.bodyMedium;
+  @override
+  TextStyle get bodySmall => _theme.bodySmall;
+
+  @override
+  TextStyle get labelLarge => _theme.labelLarge;
+  @override
+  TextStyle get labelMedium => _theme.labelMedium;
+  @override
+  TextStyle get labelSmall => _theme.labelSmall;
 
   // Custom TextStyles
   @override
