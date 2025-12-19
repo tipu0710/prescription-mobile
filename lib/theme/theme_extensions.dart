@@ -17,15 +17,52 @@ class AppColors implements AppColorInterface {
   @override
   ColorScheme get colorScheme => _theme.colorScheme;
 
-  Color get primary => _theme.colorScheme.primary;
+  // Convenience proxies for ColorScheme properties not in AppColorInterface
   Color get onPrimary => _theme.colorScheme.onPrimary;
-  Color get secondary => _theme.colorScheme.secondary;
   Color get onSecondary => _theme.colorScheme.onSecondary;
   Color get error => _theme.colorScheme.error;
   Color get onError => _theme.colorScheme.onError;
   Color get surface => _theme.colorScheme.surface;
   Color get onSurface => _theme.colorScheme.onSurface;
+
   Brightness get brightness => _theme.colorScheme.brightness;
+
+  @override
+  Color get foreground => _theme.foreground;
+  @override
+  Color get card => _theme.card;
+  @override
+  Color get cardForeground => _theme.cardForeground;
+  @override
+  Color get popover => _theme.popover;
+  @override
+  Color get popoverForeground => _theme.popoverForeground;
+  @override
+  Color get primary => _theme.primary;
+  @override
+  Color get primaryForeground => _theme.primaryForeground;
+  @override
+  Color get secondary => _theme.secondary;
+  @override
+  Color get secondaryForeground => _theme.secondaryForeground;
+  @override
+  Color get muted => _theme.muted;
+  @override
+  Color get mutedForeground => _theme.mutedForeground;
+  @override
+  Color get accent => _theme.accent;
+  @override
+  Color get accentForeground => _theme.accentForeground;
+  @override
+  Color get destructive => _theme.destructive;
+  @override
+  Color get destructiveForeground => _theme.destructiveForeground;
+  @override
+  Color get border => _theme.border;
+  @override
+  Color get input => _theme.input;
+  @override
+  Color get ring => _theme.ring;
 
   // Custom Colors
   @override
