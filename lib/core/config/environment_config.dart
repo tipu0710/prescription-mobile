@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum Environment { dev, prod }
@@ -9,18 +10,23 @@ abstract class EnvironmentConfig {
 
 class DevConfig implements EnvironmentConfig {
   @override
-  Environment get environment => .dev;
+  Environment get environment => Environment.dev;
 
   @override
-  String get baseUrl => 'https://dev-cloud-run-service-url';
+  String get baseUrl {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8000';
+    }
+    return 'http://localhost:8000';
+  }
 }
 
 class ProdConfig implements EnvironmentConfig {
   @override
-  Environment get environment => .prod;
+  Environment get environment => Environment.prod;
 
   @override
-  String get baseUrl => 'https://prod-cloud-run-service-url';
+  String get baseUrl => 'https://babosthapotro.com';
 }
 
 final environmentConfigProvider = Provider<EnvironmentConfig>((ref) {

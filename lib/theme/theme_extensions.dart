@@ -70,11 +70,12 @@ class AppColors implements AppColorInterface {
   @override
   Color get info => _theme.info;
 
+  @override
+  Color get scaffoldColor => _theme.scaffoldColor;
+
   // Custom Colors
   @override
   Color get surfaceHighlight => _theme.surfaceHighlight;
-  @override
-  Color get customBrandColor => _theme.customBrandColor;
 }
 
 class AppTextStyles implements AppTextInterface {

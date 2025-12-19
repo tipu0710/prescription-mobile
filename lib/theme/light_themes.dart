@@ -14,7 +14,7 @@ abstract class BaseLightTheme extends AppTheme {
   @override
   Color get popoverForeground => const Color(0xFF020817);
   @override
-  Color get primary => const Color(0xFF2563EB);
+  Color get primary => const Color(0xFF3B82F6); // Updated to match design
   @override
   Color get primaryForeground => const Color(0xFFF8FAFC);
   @override
@@ -38,7 +38,7 @@ abstract class BaseLightTheme extends AppTheme {
   @override
   Color get input => const Color(0xFFE2E8F0);
   @override
-  Color get ring => const Color(0xFF8B5CF6);
+  Color get ring => const Color(0xFF3B82F6);
   @override
   Color get success => const Color(0xFF22C55E);
   @override
@@ -149,6 +149,9 @@ abstract class BaseLightTheme extends AppTheme {
   );
 
   @override
+  Color get scaffoldColor => const Color(0xFFFFFFFF);
+
+  @override
   ColorScheme get colorScheme => ColorScheme.light(
     primary: primary,
     onPrimary: primaryForeground,
@@ -163,9 +166,6 @@ abstract class BaseLightTheme extends AppTheme {
 
   @override
   Color get surfaceHighlight => const Color(0xFFF1F5F9);
-
-  @override
-  Color get customBrandColor => const Color(0xFF2563EB);
 }
 
 // Mobile Portrait Light

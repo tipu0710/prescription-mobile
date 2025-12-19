@@ -10,27 +10,19 @@ class ThemeToggleButton extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     IconData themeIcon;
-    switch (themeMode) {
-      case ThemeMode.system:
-        themeIcon = Icons.brightness_auto;
-        break;
-      case ThemeMode.light:
-        themeIcon = Icons.light_mode;
-        break;
-      case ThemeMode.dark:
-        themeIcon = Icons.dark_mode;
-        break;
-    }
+    themeIcon = switch (themeMode) {
+      .system => Icons.brightness_auto,
+      .light => Icons.light_mode,
+      .dark => Icons.dark_mode,
+    };
 
     return IconButton(
       icon: Icon(themeIcon),
       onPressed: () {
-        // Cycle: System -> Light -> Dark -> System
-        final newMode = switch (themeMode) {
-          ThemeMode.system => ThemeMode.light,
-          ThemeMode.light => ThemeMode.dark,
-          ThemeMode.dark => ThemeMode.system,
-        };
+        // Toggle: Light <-> Dark
+        final newMode = themeMode == ThemeMode.dark
+            ? ThemeMode.light
+            : ThemeMode.dark;
         ref.read(themeModeProvider.notifier).setThemeMode(newMode);
       },
       tooltip: 'Toggle Theme',

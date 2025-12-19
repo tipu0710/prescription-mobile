@@ -7,15 +7,15 @@ abstract class BaseDarkTheme extends AppTheme {
   @override
   Color get foreground => const Color(0xFFF8FAFC);
   @override
-  Color get card => const Color(0xFF020817);
+  Color get card => const Color(0xFF0F172A);
   @override
   Color get cardForeground => const Color(0xFFF8FAFC);
   @override
-  Color get popover => const Color(0xFF020817);
+  Color get popover => const Color(0xFF0F172A);
   @override
   Color get popoverForeground => const Color(0xFFF8FAFC);
   @override
-  Color get primary => const Color(0xFF2563EB);
+  Color get primary => const Color(0xFF3B82F6); // Updated to match design
   @override
   Color get primaryForeground => const Color(0xFFF8FAFC);
   @override
@@ -35,11 +35,11 @@ abstract class BaseDarkTheme extends AppTheme {
   @override
   Color get destructiveForeground => const Color(0xFFF8FAFC);
   @override
-  Color get border => const Color(0xFF1E293B);
+  Color get border => const Color(0xFF334155);
   @override
   Color get input => const Color(0xFF1E293B);
   @override
-  Color get ring => const Color(0xFF2563EB);
+  Color get ring => const Color(0xFF3B82F6);
   @override
   Color get success => const Color(0xFF4ADE80);
   @override
@@ -150,12 +150,15 @@ abstract class BaseDarkTheme extends AppTheme {
   );
 
   @override
+  Color get scaffoldColor => const Color(0xFF0F172A);
+
+  @override
   ColorScheme get colorScheme => ColorScheme.dark(
     primary: primary,
     onPrimary: primaryForeground,
     secondary: secondary,
     onSecondary: secondaryForeground,
-    surface: const Color(0xFF020817),
+    surface: const Color(0xFF0F172A),
     onSurface: foreground,
     error: destructive,
     onError: destructiveForeground,
@@ -164,9 +167,6 @@ abstract class BaseDarkTheme extends AppTheme {
 
   @override
   Color get surfaceHighlight => const Color(0xFF1E293B);
-
-  @override
-  Color get customBrandColor => const Color(0xFF2563EB);
 }
 
 // Mobile Portrait Dark

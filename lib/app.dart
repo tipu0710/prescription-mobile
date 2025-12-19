@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/router/router_provider.dart';
 import 'core/utils/toast_service.dart';
 import 'presentation/widgets/theme_toggle_button.dart';
 import 'theme/responsive_theme.dart';
 import 'theme/theme_extensions.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
     return AppThemeBuilder(
       builder: (context, appTheme) {
-        return MaterialApp(
+        return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           theme: appTheme.themeData,
-          home: const HomePage(),
+          routerConfig: router,
         );
       },
     );
@@ -40,7 +43,7 @@ class HomePage extends ConsumerWidget {
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(8),
-              color: context.appColor.customBrandColor,
+              color: context.appColor.card,
               child: Text(
                 'Brand Color Box',
                 style: TextStyle(color: context.appColor.onPrimary),

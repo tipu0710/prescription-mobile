@@ -23,7 +23,7 @@ abstract interface class AppColorInterface {
   Color get warning;
   Color get info;
 
+  Color get scaffoldColor;
   ColorScheme get colorScheme;
   Color get surfaceHighlight;
-  Color get customBrandColor;
 }
