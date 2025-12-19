@@ -39,6 +39,12 @@ abstract class BaseLightTheme extends AppTheme {
   Color get input => const Color(0xFFE2E8F0);
   @override
   Color get ring => const Color(0xFF8B5CF6);
+  @override
+  Color get success => const Color(0xFF22C55E);
+  @override
+  Color get warning => const Color(0xFFF59E0B);
+  @override
+  Color get info => const Color(0xFF3B82F6);
 
   // --- Typography Implementation ---
 
@@ -171,7 +177,6 @@ class MobilePortraitLightTheme extends BaseLightTheme {
       titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
     ),
   );
-
 }
 
 // Mobile Landscape Light
@@ -183,7 +188,6 @@ class MobileLandscapeLightTheme extends BaseLightTheme {
       titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     ),
   );
-
 }
 
 // Tablet Portrait Light
@@ -195,7 +199,6 @@ class TabletPortraitLightTheme extends BaseLightTheme {
       titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
     ),
   );
-
 }
 
 // Tablet Landscape Light

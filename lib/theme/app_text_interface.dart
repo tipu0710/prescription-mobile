@@ -27,5 +27,4 @@ abstract interface class AppTextInterface {
   TextStyle get labelLarge;
   TextStyle get labelMedium;
   TextStyle get labelSmall;
-
 }

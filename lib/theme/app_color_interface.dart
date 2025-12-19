@@ -19,6 +19,9 @@ abstract interface class AppColorInterface {
   Color get border;
   Color get input;
   Color get ring;
+  Color get success;
+  Color get warning;
+  Color get info;
 
   ColorScheme get colorScheme;
   Color get surfaceHighlight;

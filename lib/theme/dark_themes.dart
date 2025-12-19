@@ -40,6 +40,12 @@ abstract class BaseDarkTheme extends AppTheme {
   Color get input => const Color(0xFF1E293B);
   @override
   Color get ring => const Color(0xFF2563EB);
+  @override
+  Color get success => const Color(0xFF4ADE80);
+  @override
+  Color get warning => const Color(0xFFFBBF24);
+  @override
+  Color get info => const Color(0xFF60A5FA);
 
   // --- Typography Implementation ---
 

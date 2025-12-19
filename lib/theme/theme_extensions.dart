@@ -63,6 +63,12 @@ class AppColors implements AppColorInterface {
   Color get input => _theme.input;
   @override
   Color get ring => _theme.ring;
+  @override
+  Color get success => _theme.success;
+  @override
+  Color get warning => _theme.warning;
+  @override
+  Color get info => _theme.info;
 
   // Custom Colors
   @override
