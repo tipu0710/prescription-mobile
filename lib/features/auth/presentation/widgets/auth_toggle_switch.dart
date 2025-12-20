@@ -18,32 +18,35 @@ class AuthToggleSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColor;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colors.border),
-      ),
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildButton(
-            context,
-            text: 'Sign In',
-            isSelected: isSignIn,
-            onTap: onSignInTap,
-            colors: colors,
-          ),
-          const SizedBox(width: 8),
-          _buildButton(
-            context,
-            text: 'Sign Up',
-            isSelected: !isSignIn,
-            onTap: onSignUpTap,
-            colors: colors,
-          ),
-        ],
+    return Material(
+      type: .transparency,
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.card,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: colors.border),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildButton(
+              context,
+              text: 'Sign In',
+              isSelected: isSignIn,
+              onTap: onSignInTap,
+              colors: colors,
+            ),
+            const SizedBox(width: 8),
+            _buildButton(
+              context,
+              text: 'Sign Up',
+              isSelected: !isSignIn,
+              onTap: onSignUpTap,
+              colors: colors,
+            ),
+          ],
+        ),
       ),
     );
   }

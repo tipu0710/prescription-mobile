@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'presentation/pages/sign_in_page.dart';
 import 'presentation/pages/sign_up_page.dart';
@@ -7,7 +8,25 @@ class AuthRoutes {
   static const String signup = '/signup';
 
   static List<GoRoute> get routes => [
-    GoRoute(path: signin, builder: (context, state) => const SignInPage()),
-    GoRoute(path: signup, builder: (context, state) => const SignUpPage()),
+    GoRoute(
+      path: signin,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const SignInPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    ),
+    GoRoute(
+      path: signup,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const SignUpPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    ),
   ];
 }

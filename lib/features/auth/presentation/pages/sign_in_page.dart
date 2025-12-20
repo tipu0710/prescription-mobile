@@ -59,26 +59,35 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 30,
-                      width: 30,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colors.foreground.withValues(alpha: 0.2),
-                        ),
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/icon.png'),
-                          fit: BoxFit.cover,
+                    Hero(
+                      tag: 'auth-logo',
+                      child: Container(
+                        height: 30,
+                        width: 30,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colors.foreground.withValues(alpha: 0.2),
+                          ),
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/icon.png'),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
                     const Gap(12),
-                    Text(
-                      'Babosthapotro',
-                      style: context.textStyle.displayLarge.copyWith(
-                        color: colors.foreground,
+                    Hero(
+                      tag: 'auth-title',
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: Text(
+                          'Babosthapotro',
+                          style: context.textStyle.displayLarge.copyWith(
+                            color: colors.foreground,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -94,121 +103,131 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 const Gap(32),
 
                 // Toggle Switch
-                AuthToggleSwitch(
-                  isSignIn: true,
-                  onSignInTap: () {},
-                  onSignUpTap: () => context.push('/signup'),
+                Hero(
+                  tag: 'auth-switch',
+                  child: AuthToggleSwitch(
+                    isSignIn: true,
+                    onSignInTap: () {},
+                    onSignUpTap: () => context.push('/signup'),
+                  ),
                 ),
 
                 const Gap(32),
 
                 // Card Container
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
+                Hero(
+                  tag: 'auth-card',
+                  child: Material(
                     color: colors.card,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: colors.border, width: 1.5),
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        // Email Field
-                        CustomTextFormField(
-                          controller: _emailController,
-                          hintText: 'Email address',
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: colors.mutedForeground,
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const Gap(16),
-
-                        // Password Field
-                        ValueListenableBuilder<bool>(
-                          valueListenable: ValueNotifier<bool>(true),
-                          builder: (context, obscure, child) {
-                            return _PasswordInput(
-                              controller: _passwordController,
-                              fillColor: colors.input,
-                              primaryColor: colors.primary,
-                              foreground: colors.foreground,
-                              mutedForeground: colors.mutedForeground,
-                              borderColor: colors.border,
-                            );
-                          },
-                        ),
-
-                        const Gap(24),
-
-                        // Continue Button
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final authState = ref.watch(authControllerProvider);
-                            final isLoading = authState.isLoading;
-
-                            // Listen for success/error
-                            ref.listen(authControllerProvider, (
-                              previous,
-                              next,
-                            ) {
-                              next.whenOrNull(
-                                data: (_) {
-                                  ToastService.showSuccess(
-                                    context,
-                                    message: "Login successful!",
-                                  );
-                                  context.go('/dashboard');
-                                },
-                                error: (error, stackTrace) {
-                                  ToastService.showError(
-                                    context,
-                                    message: error.toString(),
-                                  );
-                                },
-                              );
-                            });
-
-                            return CustomElevatedButton(
-                              onPressed: _handleLogin,
-                              text: 'Continue',
-                              isLoading: isLoading,
-                            );
-                          },
-                        ),
-
-                        const Gap(16),
-
-                        // Terms
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style: context.textStyle.bodySmall.copyWith(
-                              color: colors.mutedForeground,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      side: BorderSide(color: colors.border, width: 1.5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // Email Field
+                            CustomTextFormField(
+                              controller: _emailController,
+                              hintText: 'Email address',
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: colors.mutedForeground,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                return null;
+                              },
                             ),
-                            children: [
-                              const TextSpan(
-                                text: 'By continuing, you agree to our ',
-                              ),
-                              TextSpan(
-                                text: 'Terms and\nPrivacy Policy',
+                            const Gap(16),
+
+                            // Password Field
+                            ValueListenableBuilder<bool>(
+                              valueListenable: ValueNotifier<bool>(true),
+                              builder: (context, obscure, child) {
+                                return _PasswordInput(
+                                  controller: _passwordController,
+                                  fillColor: colors.input,
+                                  primaryColor: colors.primary,
+                                  foreground: colors.foreground,
+                                  mutedForeground: colors.mutedForeground,
+                                  borderColor: colors.border,
+                                );
+                              },
+                            ),
+
+                            const Gap(24),
+
+                            // Continue Button
+                            Consumer(
+                              builder: (context, ref, child) {
+                                final authState = ref.watch(
+                                  authControllerProvider,
+                                );
+                                final isLoading = authState.isLoading;
+
+                                // Listen for success/error
+                                ref.listen(authControllerProvider, (
+                                  previous,
+                                  next,
+                                ) {
+                                  next.whenOrNull(
+                                    data: (_) {
+                                      ToastService.showSuccess(
+                                        context,
+                                        message: "Login successful!",
+                                      );
+                                      context.go('/dashboard');
+                                    },
+                                    error: (error, stackTrace) {
+                                      ToastService.showError(
+                                        context,
+                                        message: error.toString(),
+                                      );
+                                    },
+                                  );
+                                });
+
+                                return CustomElevatedButton(
+                                  onPressed: _handleLogin,
+                                  text: 'Continue',
+                                  isLoading: isLoading,
+                                );
+                              },
+                            ),
+
+                            const Gap(16),
+
+                            // Terms
+                            RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
                                 style: context.textStyle.bodySmall.copyWith(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.bold,
+                                  color: colors.mutedForeground,
                                 ),
+                                children: [
+                                  const TextSpan(
+                                    text: 'By continuing, you agree to our ',
+                                  ),
+                                  TextSpan(
+                                    text: 'Terms and\nPrivacy Policy',
+                                    style: context.textStyle.bodySmall.copyWith(
+                                      color: colors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const TextSpan(text: '.'),
+                                ],
                               ),
-                              const TextSpan(text: '.'),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

@@ -1,8 +1,11 @@
 import 'package:babosthapotro/core/utils/toast_service.dart';
-import 'package:babosthapotro/presentation/widgets/theme_toggle_button.dart';
+import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
+import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
+import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -50,180 +53,288 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColor;
-    final textStyles = context.textStyle;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [Text('Babosthapotro')],
-        ),
-        actions: const [ThemeToggleButton()],
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              color: colors.card,
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo placeholder
-                      Container(
-                        width: 64,
-                        height: 64,
+      backgroundColor: colors.scaffoldColor,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Header Logo & Text
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Hero(
+                      tag: 'auth-logo',
+                      child: Container(
+                        height: 30,
+                        width: 30,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: colors.secondary.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.person_add_outlined,
-                          size: 32,
-                          color: colors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Create an account',
-                        style: textStyles.headlineSmall.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Join Babosthapotro to create and manage prescriptions',
-                        style: textStyles.bodyMedium.copyWith(
-                          color: colors.mutedForeground,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Work email',
-                          hintText: 'name@example.com',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: colors.foreground.withValues(alpha: 0.2),
                           ),
-                          filled: true,
-                          fillColor: colors.input.withValues(alpha: 0.5),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          // Simple regex for basic validation
-                          final emailRegex = RegExp(
-                            r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
-                          );
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Create password',
-                          hintText: '••••••••',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/icon.png'),
+                            fit: BoxFit.cover,
                           ),
-                          filled: true,
-                          fillColor: colors.input.withValues(alpha: 0.5),
-                        ),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please create a password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _bmdcController,
-                        decoration: InputDecoration(
-                          labelText: 'BM&DC Full Registration Number',
-                          hintText: '123456',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: colors.input.withValues(alpha: 0.5),
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(6),
-                        ],
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your BM&DC number';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleSignup,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: colors.onPrimary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text('Create account'),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      TextButton(
-                        onPressed: () => context.go('/signin'),
+                    ),
+                    const Gap(12),
+                    Hero(
+                      tag: 'auth-title',
+                      child: Material(
+                        type: MaterialType.transparency,
                         child: Text(
-                          "Already have an account? Sign in",
-                          style: textStyles.bodyMedium.copyWith(
-                            color: colors.primary,
+                          'Babosthapotro',
+                          style: context.textStyle.displayLarge.copyWith(
+                            color: colors.foreground,
                           ),
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                const Gap(16),
+                Text(
+                  'Join to manage prescriptions and templates',
+                  textAlign: TextAlign.center,
+                  style: context.textStyle.bodyMedium.copyWith(
+                    color: colors.mutedForeground,
                   ),
                 ),
-              ),
+                const Gap(32),
+
+                // Toggle Switch
+                Hero(
+                  tag: 'auth-switch',
+                  child: AuthToggleSwitch(
+                    isSignIn: false,
+                    onSignInTap: () => context.go('/signin'),
+                    onSignUpTap: () {},
+                  ),
+                ),
+
+                const Gap(32),
+
+                // Card Container
+                Hero(
+                  tag: 'auth-card',
+                  child: Material(
+                    color: colors.card,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      side: BorderSide(color: colors.border, width: 1.5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Form(
+                        key: _formKey,
+                        child: SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          child: Column(
+                            children: [
+                              // Email Field
+                              CustomTextFormField(
+                                controller: _emailController,
+                                hintText: 'Email address',
+                                prefixIcon: Icon(
+                                  Icons.email_outlined,
+                                  color: colors.mutedForeground,
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  }
+                                  final emailRegex = RegExp(
+                                    r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+                                  );
+                                  if (!emailRegex.hasMatch(value)) {
+                                    return 'Please enter a valid email address';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const Gap(16),
+
+                              // BMDC Number Field
+                              CustomTextFormField(
+                                controller: _bmdcController,
+                                hintText: 'BM&DC Registration Number',
+                                prefixIcon: Icon(
+                                  Icons.badge_outlined,
+                                  color: colors.mutedForeground,
+                                ),
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(6),
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your BM&DC number';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const Gap(16),
+
+                              // Password Field
+                              ValueListenableBuilder<bool>(
+                                valueListenable: ValueNotifier<bool>(true),
+                                builder: (context, obscure, child) {
+                                  return _PasswordInput(
+                                    controller: _passwordController,
+                                    fillColor: colors.input,
+                                    primaryColor: colors.primary,
+                                    foreground: colors.foreground,
+                                    mutedForeground: colors.mutedForeground,
+                                    borderColor: colors.border,
+                                  );
+                                },
+                              ),
+
+                              const Gap(24),
+
+                              // Create Account Button
+                              CustomElevatedButton(
+                                onPressed: _handleSignup,
+                                text: 'Create account',
+                                isLoading: _isLoading,
+                              ),
+
+                              const Gap(16),
+
+                              // Terms
+                              RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: context.textStyle.bodySmall.copyWith(
+                                    color: colors.mutedForeground,
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                      text: 'By signing up, you agree to our ',
+                                    ),
+                                    TextSpan(
+                                      text: 'Terms and\nPrivacy Policy',
+                                      style: context.textStyle.bodySmall
+                                          .copyWith(
+                                            color: colors.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    const TextSpan(text: '.'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const Gap(32),
+                TextButton(
+                  onPressed: () => context.go('/signin'),
+                  child: RichText(
+                    text: TextSpan(
+                      style: context.textStyle.bodyMedium.copyWith(
+                        color: colors.mutedForeground,
+                      ),
+                      children: [
+                        const TextSpan(text: "Already have an account? "),
+                        TextSpan(
+                          text: "Sign in",
+                          style: TextStyle(
+                            color: colors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const Gap(48),
+                Text(
+                  "Need help? Contact support",
+                  style: context.textStyle.bodyMedium.copyWith(
+                    color: colors.mutedForeground,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PasswordInput extends StatefulWidget {
+  final TextEditingController controller;
+  final Color fillColor;
+  final Color primaryColor;
+
+  final Color foreground;
+  final Color mutedForeground;
+  final Color borderColor;
+
+  const _PasswordInput({
+    required this.controller,
+    required this.fillColor,
+    required this.primaryColor,
+    required this.foreground,
+    required this.mutedForeground,
+    required this.borderColor,
+  });
+
+  @override
+  State<_PasswordInput> createState() => _PasswordInputState();
+}
+
+class _PasswordInputState extends State<_PasswordInput> {
+  bool _obscureText = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomTextFormField(
+      controller: widget.controller,
+      obscureText: _obscureText,
+      hintText: 'Create password',
+      fillColor: widget.fillColor,
+      borderColor: widget.borderColor,
+      focusedBorderColor: widget.primaryColor,
+      style: TextStyle(color: widget.foreground),
+      hintStyle: TextStyle(color: widget.mutedForeground),
+      prefixIcon: Icon(Icons.lock_outline, color: widget.mutedForeground),
+      suffixIcon: IconButton(
+        icon: Icon(
+          _obscureText
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined,
+          color: widget.mutedForeground,
+        ),
+        onPressed: () => setState(() => _obscureText = !_obscureText),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please create a password';
+        }
+        if (value.length < 6) {
+          return 'Password must be at least 6 characters';
+        }
+        return null;
+      },
     );
   }
 }
