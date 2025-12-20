@@ -1,6 +1,7 @@
 import 'package:babosthapotro/features/auth/domain/entities/login_params.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
+import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -148,68 +149,39 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                         const Gap(24),
 
                         // Continue Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: Consumer(
-                            builder: (context, ref, child) {
-                              final authState = ref.watch(
-                                authControllerProvider,
-                              );
-                              final isLoading = authState.isLoading;
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final authState = ref.watch(authControllerProvider);
+                            final isLoading = authState.isLoading;
 
-                              // Listen for success/error
-                              ref.listen(authControllerProvider, (
-                                previous,
-                                next,
-                              ) {
-                                next.whenOrNull(
-                                  data: (_) {
-                                    ToastService.showSuccess(
-                                      context,
-                                      message: "Login successful!",
-                                    );
-                                    context.go('/dashboard');
-                                  },
-                                  error: (error, stackTrace) {
-                                    ToastService.showError(
-                                      context,
-                                      message: error.toString(),
-                                    );
-                                  },
-                                );
-                              });
-
-                              return ElevatedButton(
-                                onPressed: isLoading ? null : _handleLogin,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colors.primary,
-                                  foregroundColor: colors.primaryForeground,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: isLoading
-                                    ? SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: colors.primaryForeground,
-                                        ),
-                                      )
-                                    : Text(
-                                        'Continue',
-                                        style: context.textStyle.labelLarge
-                                            .copyWith(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
+                            // Listen for success/error
+                            ref.listen(authControllerProvider, (
+                              previous,
+                              next,
+                            ) {
+                              next.whenOrNull(
+                                data: (_) {
+                                  ToastService.showSuccess(
+                                    context,
+                                    message: "Login successful!",
+                                  );
+                                  context.go('/dashboard');
+                                },
+                                error: (error, stackTrace) {
+                                  ToastService.showError(
+                                    context,
+                                    message: error.toString(),
+                                  );
+                                },
                               );
-                            },
-                          ),
+                            });
+
+                            return CustomElevatedButton(
+                              onPressed: _handleLogin,
+                              text: 'Continue',
+                              isLoading: isLoading,
+                            );
+                          },
                         ),
 
                         const Gap(16),
