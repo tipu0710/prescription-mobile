@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/network/dio_provider.dart';
 import '../../features/auth/data/models/login_request.dart';
+import '../../features/auth/data/models/signup_request.dart';
 
 part 'api_client.g.dart';
 
@@ -14,6 +15,9 @@ abstract class ApiClient {
   // Auth
   @POST('/api/auth/login/')
   Future<void> login(@Body() LoginRequest body);
+
+  @POST('/api/auth/register/')
+  Future<void> signup(@Body() SignupRequest body);
 }
 
 @riverpod

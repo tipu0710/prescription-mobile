@@ -2,43 +2,40 @@ import 'package:babosthapotro/core/utils/toast_service.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
 import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
+import 'package:babosthapotro/presentation/widgets/password_input_widget.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import '../../domain/entities/signup_params.dart';
+import '../providers/auth_provider.dart';
 
-class SignUpPage extends StatefulWidget {
+class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  ConsumerState<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpPageState extends ConsumerState<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _bmdcController = TextEditingController();
-  bool _isLoading = false;
 
-  void _handleSignup() async {
+  void _handleSignup() {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-
-      // Simulate network request
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // For now just show success and navigate to verify (mock)
-        ToastService.showSuccess(
-          context,
-          message: "Account created! Please verify your email.",
-        );
-        // In real app, probably go to a verification page or back to signin
-        context.go('/signin');
-      }
+      ref
+          .read(authControllerProvider.notifier)
+          .signup(
+            SignupParams(
+              email: _emailController.text,
+              bmdcNumber: _bmdcController.text,
+              password: _passwordController.text,
+            ),
+          );
     }
   }
 
@@ -52,6 +49,20 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (previous, next) {
+      if (next is AsyncError) {
+        ToastService.showError(context, message: next.error.toString());
+      } else if (next is AsyncData) {
+        ToastService.showSuccess(
+          context,
+          message: "Account created! Please verify your email.",
+        );
+        context.go('/signin');
+      }
+    });
+
+    final state = ref.watch(authControllerProvider);
+    final isLoading = state.isLoading;
     final colors = context.appColor;
 
     return Scaffold(
@@ -186,19 +197,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               const Gap(16),
 
                               // Password Field
-                              ValueListenableBuilder<bool>(
-                                valueListenable: ValueNotifier<bool>(true),
-                                builder: (context, obscure, child) {
-                                  return _PasswordInput(
-                                    controller: _passwordController,
-                                    fillColor: colors.input,
-                                    primaryColor: colors.primary,
-                                    foreground: colors.foreground,
-                                    mutedForeground: colors.mutedForeground,
-                                    borderColor: colors.border,
-                                  );
-                                },
-                              ),
+                              PasswordInput(controller: _passwordController),
 
                               const Gap(24),
 
@@ -206,7 +205,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               CustomElevatedButton(
                                 onPressed: _handleSignup,
                                 text: 'Create account',
-                                isLoading: _isLoading,
+                                isLoading: isLoading,
                               ),
 
                               const Gap(16),
@@ -276,65 +275,6 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _PasswordInput extends StatefulWidget {
-  final TextEditingController controller;
-  final Color fillColor;
-  final Color primaryColor;
-
-  final Color foreground;
-  final Color mutedForeground;
-  final Color borderColor;
-
-  const _PasswordInput({
-    required this.controller,
-    required this.fillColor,
-    required this.primaryColor,
-    required this.foreground,
-    required this.mutedForeground,
-    required this.borderColor,
-  });
-
-  @override
-  State<_PasswordInput> createState() => _PasswordInputState();
-}
-
-class _PasswordInputState extends State<_PasswordInput> {
-  bool _obscureText = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomTextFormField(
-      controller: widget.controller,
-      obscureText: _obscureText,
-      hintText: 'Create password',
-      fillColor: widget.fillColor,
-      borderColor: widget.borderColor,
-      focusedBorderColor: widget.primaryColor,
-      style: TextStyle(color: widget.foreground),
-      hintStyle: TextStyle(color: widget.mutedForeground),
-      prefixIcon: Icon(Icons.lock_outline, color: widget.mutedForeground),
-      suffixIcon: IconButton(
-        icon: Icon(
-          _obscureText
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
-          color: widget.mutedForeground,
-        ),
-        onPressed: () => setState(() => _obscureText = !_obscureText),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please create a password';
-        }
-        if (value.length < 6) {
-          return 'Password must be at least 6 characters';
-        }
-        return null;
-      },
     );
   }
 }

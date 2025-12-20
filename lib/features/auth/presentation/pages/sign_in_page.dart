@@ -2,6 +2,7 @@ import 'package:babosthapotro/features/auth/domain/entities/login_params.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
 import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
+import 'package:babosthapotro/presentation/widgets/password_input_widget.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -147,19 +148,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             const Gap(16),
 
                             // Password Field
-                            ValueListenableBuilder<bool>(
-                              valueListenable: ValueNotifier<bool>(true),
-                              builder: (context, obscure, child) {
-                                return _PasswordInput(
-                                  controller: _passwordController,
-                                  fillColor: colors.input,
-                                  primaryColor: colors.primary,
-                                  foreground: colors.foreground,
-                                  mutedForeground: colors.mutedForeground,
-                                  borderColor: colors.border,
-                                );
-                              },
-                            ),
+                            PasswordInput(controller: _passwordController),
 
                             const Gap(24),
 
@@ -255,62 +244,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _PasswordInput extends StatefulWidget {
-  final TextEditingController controller;
-  final Color fillColor;
-  final Color primaryColor;
-
-  final Color foreground;
-  final Color mutedForeground;
-  final Color borderColor;
-
-  const _PasswordInput({
-    required this.controller,
-    required this.fillColor,
-    required this.primaryColor,
-    required this.foreground,
-    required this.mutedForeground,
-    required this.borderColor,
-  });
-
-  @override
-  State<_PasswordInput> createState() => _PasswordInputState();
-}
-
-class _PasswordInputState extends State<_PasswordInput> {
-  bool _obscureText = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomTextFormField(
-      controller: widget.controller,
-      obscureText: _obscureText,
-      hintText: 'Password',
-      fillColor: widget.fillColor,
-      borderColor: widget.borderColor,
-      focusedBorderColor: widget.primaryColor,
-      style: TextStyle(color: widget.foreground),
-      hintStyle: TextStyle(color: widget.mutedForeground),
-      prefixIcon: Icon(Icons.lock_outline, color: widget.mutedForeground),
-      suffixIcon: IconButton(
-        icon: Icon(
-          _obscureText
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
-          color: widget.mutedForeground,
-        ),
-        onPressed: () => setState(() => _obscureText = !_obscureText),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your password';
-        }
-        return null;
-      },
     );
   }
 }
