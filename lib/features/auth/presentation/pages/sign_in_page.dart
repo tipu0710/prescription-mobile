@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:babosthapotro/core/network/api_error_handler.dart';
 import 'package:babosthapotro/core/utils/toast_service.dart';
 import '../providers/auth_provider.dart';
 
@@ -183,7 +184,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                                     error: (error, stackTrace) {
                                       ToastService.showError(
                                         context,
-                                        message: error.toString(),
+                                        message:
+                                            ApiErrorHandler.getErrorMessage(
+                                              error,
+                                            ),
                                       );
                                     },
                                   );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/pages/webview_page.dart';
 import 'presentation/pages/sign_in_page.dart';
 import 'presentation/pages/sign_up_page.dart';
+import 'presentation/pages/otp_verification_page.dart';
 
 class AuthRoutes {
   static const String signin = '/signin';
@@ -37,6 +38,13 @@ class AuthRoutes {
           url: extras['url'] as String,
           title: extras['title'] as String,
         );
+      },
+    ),
+    GoRoute(
+      path: '/verify',
+      builder: (context, state) {
+        final email = state.extra as String;
+        return OTPVerificationPage(email: email);
       },
     ),
   ];

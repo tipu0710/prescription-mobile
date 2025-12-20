@@ -1,3 +1,4 @@
+import 'package:babosthapotro/core/network/api_error_handler.dart';
 import 'package:babosthapotro/core/utils/toast_service.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/terms_and_conditions.dart';
@@ -52,13 +53,16 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   Widget build(BuildContext context) {
     ref.listen(authControllerProvider, (previous, next) {
       if (next is AsyncError) {
-        ToastService.showError(context, message: next.error.toString());
+        ToastService.showError(
+          context,
+          message: ApiErrorHandler.getErrorMessage(next.error),
+        );
       } else if (next is AsyncData) {
         ToastService.showSuccess(
           context,
           message: "Account created! Please verify your email.",
         );
-        context.go('/signin');
+        context.go('/verify', extra: _emailController.text);
       }
     });
 

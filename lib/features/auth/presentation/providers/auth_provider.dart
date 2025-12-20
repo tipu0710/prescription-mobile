@@ -27,4 +27,23 @@ class AuthController extends _$AuthController {
       await authRepository.signup(params);
     });
   }
+
+  Future<void> verifyOtp(String email, String code) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final authRepository = ref.read(authRepositoryProvider);
+      await authRepository.verifyOtp(email, code);
+    });
+  }
+
+  Future<void> resendOtp(String email, String purpose) async {
+    // We don't want to set global loading state for resend, to keep UI interactive?
+    // Or maybe we do. For now let's set it to loading to prevent double taps.
+    // Ideally we might want a separate state for resend, but let's stick to simple first.
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final authRepository = ref.read(authRepositoryProvider);
+      await authRepository.resendOtp(email, purpose);
+    });
+  }
 }
