@@ -94,11 +94,17 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   ],
                 ),
                 const Gap(16),
-                Text(
-                  'Sign in to manage prescriptions and templates',
-                  textAlign: TextAlign.center,
-                  style: context.textStyle.bodyMedium.copyWith(
-                    color: colors.mutedForeground,
+                Hero(
+                  tag: 'auth-description',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      'Sign in to manage prescriptions and templates',
+                      textAlign: TextAlign.center,
+                      style: context.textStyle.bodyMedium.copyWith(
+                        color: colors.mutedForeground,
+                      ),
+                    ),
                   ),
                 ),
                 const Gap(32),
@@ -222,21 +228,30 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 ),
 
                 const Gap(24),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Forgot password?',
-                    style: context.textStyle.labelLarge.copyWith(
-                      color: colors.foreground,
+                Hero(
+                  tag: 'auth-extra',
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Forgot password?',
+                      style: context.textStyle.labelLarge.copyWith(
+                        color: colors.foreground,
+                      ),
                     ),
                   ),
                 ),
 
                 const Gap(48),
-                Text(
-                  "Need help? Contact support",
-                  style: context.textStyle.bodyMedium.copyWith(
-                    color: colors.mutedForeground,
+                Hero(
+                  tag: 'auth-help',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      "Need help? Contact support",
+                      style: context.textStyle.bodyMedium.copyWith(
+                        color: colors.mutedForeground,
+                      ),
+                    ),
                   ),
                 ),
               ],

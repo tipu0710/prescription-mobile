@@ -112,11 +112,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   ],
                 ),
                 const Gap(16),
-                Text(
-                  'Join to manage prescriptions and templates',
-                  textAlign: TextAlign.center,
-                  style: context.textStyle.bodyMedium.copyWith(
-                    color: colors.mutedForeground,
+                Hero(
+                  tag: 'auth-description',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      'Join to manage prescriptions and templates',
+                      textAlign: TextAlign.center,
+                      style: context.textStyle.bodyMedium.copyWith(
+                        color: colors.mutedForeground,
+                      ),
+                    ),
                   ),
                 ),
                 const Gap(32),
@@ -242,32 +248,43 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 ),
 
                 const Gap(32),
-                TextButton(
-                  onPressed: () => context.go('/signin'),
-                  child: RichText(
-                    text: TextSpan(
-                      style: context.textStyle.bodyMedium.copyWith(
-                        color: colors.mutedForeground,
-                      ),
-                      children: [
-                        const TextSpan(text: "Already have an account? "),
-                        TextSpan(
-                          text: "Sign in",
-                          style: TextStyle(
-                            color: colors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                Hero(
+                  tag: 'auth-extra',
+                  child: TextButton(
+                    onPressed: () => context.go('/signin'),
+                    child: RichText(
+                      textAlign: .center,
+                      text: TextSpan(
+                        style: context.textStyle.bodyMedium.copyWith(
+                          color: colors.mutedForeground,
                         ),
-                      ],
+
+                        children: [
+                          const TextSpan(text: "Already have an account? "),
+                          TextSpan(
+                            text: "Sign in",
+                            style: TextStyle(
+                              color: colors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
 
                 const Gap(48),
-                Text(
-                  "Need help? Contact support",
-                  style: context.textStyle.bodyMedium.copyWith(
-                    color: colors.mutedForeground,
+                Hero(
+                  tag: 'auth-help',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      "Need help? Contact support",
+                      style: context.textStyle.bodyMedium.copyWith(
+                        color: colors.mutedForeground,
+                      ),
+                    ),
                   ),
                 ),
               ],
