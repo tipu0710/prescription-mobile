@@ -3,6 +3,7 @@ import 'package:retrofit/retrofit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/network/dio_provider.dart';
+import '../../features/auth/data/models/login_request.dart';
 
 part 'api_client.g.dart';
 
@@ -10,9 +11,9 @@ part 'api_client.g.dart';
 abstract class ApiClient {
   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
 
-  // TODO: Add your API methods here
-  // @GET("/users")
-  // Future<List<User>> getUsers();
+  // Auth
+  @POST('/api/auth/login/')
+  Future<void> login(@Body() LoginRequest body);
 }
 
 @riverpod

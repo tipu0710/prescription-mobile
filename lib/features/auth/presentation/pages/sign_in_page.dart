@@ -1,37 +1,35 @@
-import 'package:babosthapotro/core/utils/toast_service.dart';
+import 'package:babosthapotro/features/auth/domain/entities/login_params.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
-import 'package:babosthapotro/presentation/widgets/theme_toggle_button.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:babosthapotro/core/utils/toast_service.dart';
+import '../providers/auth_provider.dart';
 
-class SignInPage extends StatefulWidget {
+class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
   @override
-  State<SignInPage> createState() => _SignInPageState();
+  ConsumerState<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignInPageState extends ConsumerState<SignInPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
-
-  void _handleLogin() async {
+  void _handleLogin() {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-
-      // Simulate network request
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // For now just show success and navigate (mock)
-        ToastService.showSuccess(context, message: "Login successful!");
-        context.go('/dashboard');
-      }
+      ref
+          .read(authControllerProvider.notifier)
+          .login(
+            LoginParams(
+              credential: _emailController.text,
+              password: _passwordController.text,
+            ),
+          );
     }
   }
 
@@ -57,25 +55,25 @@ class _SignInPageState extends State<SignInPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Header Logo & Text
-                ThemeToggleButton(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
+                      height: 30,
+                      width: 30,
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: colors.foreground.withValues(alpha: 0.2),
                         ),
-                      ),
-                      child: Icon(
-                        Icons.medical_services_outlined,
-                        color: colors.foreground,
-                        size: 24,
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/icon.png'),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const Gap(12),
                     Text(
                       'Babosthapotro',
                       style: context.textStyle.displayLarge.copyWith(
@@ -84,7 +82,7 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const Gap(16),
                 Text(
                   'Sign in to manage prescriptions and templates',
                   textAlign: TextAlign.center,
@@ -92,7 +90,7 @@ class _SignInPageState extends State<SignInPage> {
                     color: colors.mutedForeground,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const Gap(32),
 
                 // Toggle Switch
                 AuthToggleSwitch(
@@ -101,7 +99,7 @@ class _SignInPageState extends State<SignInPage> {
                   onSignUpTap: () => context.push('/signup'),
                 ),
 
-                const SizedBox(height: 32),
+                const Gap(32),
 
                 // Card Container
                 Container(
@@ -130,7 +128,7 @@ class _SignInPageState extends State<SignInPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const Gap(16),
 
                         // Password Field
                         ValueListenableBuilder<bool>(
@@ -147,43 +145,74 @@ class _SignInPageState extends State<SignInPage> {
                           },
                         ),
 
-                        const SizedBox(height: 24),
+                        const Gap(24),
 
                         // Continue Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.primary,
-                              foregroundColor: colors.primaryForeground,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: _isLoading
-                                ? SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: colors.primaryForeground,
-                                    ),
-                                  )
-                                : Text(
-                                    'Continue',
-                                    style: context.textStyle.labelLarge
-                                        .copyWith(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                          child: Consumer(
+                            builder: (context, ref, child) {
+                              final authState = ref.watch(
+                                authControllerProvider,
+                              );
+                              final isLoading = authState.isLoading;
+
+                              // Listen for success/error
+                              ref.listen(authControllerProvider, (
+                                previous,
+                                next,
+                              ) {
+                                next.whenOrNull(
+                                  data: (_) {
+                                    ToastService.showSuccess(
+                                      context,
+                                      message: "Login successful!",
+                                    );
+                                    context.go('/dashboard');
+                                  },
+                                  error: (error, stackTrace) {
+                                    ToastService.showError(
+                                      context,
+                                      message: error.toString(),
+                                    );
+                                  },
+                                );
+                              });
+
+                              return ElevatedButton(
+                                onPressed: isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colors.primary,
+                                  foregroundColor: colors.primaryForeground,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
+                                  elevation: 0,
+                                ),
+                                child: isLoading
+                                    ? SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: colors.primaryForeground,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Continue',
+                                        style: context.textStyle.labelLarge
+                                            .copyWith(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                              );
+                            },
                           ),
                         ),
 
-                        const SizedBox(height: 16),
+                        const Gap(16),
 
                         // Terms
                         RichText(
@@ -212,7 +241,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const Gap(24),
                 TextButton(
                   onPressed: () {},
                   child: Text(
@@ -223,7 +252,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
 
-                const SizedBox(height: 48),
+                const Gap(48),
                 Text(
                   "Need help? Contact support",
                   style: context.textStyle.bodyMedium.copyWith(
