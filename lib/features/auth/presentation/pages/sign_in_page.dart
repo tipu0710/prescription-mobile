@@ -1,8 +1,9 @@
 import 'package:babosthapotro/features/auth/domain/entities/login_params.dart';
 import 'package:babosthapotro/features/auth/presentation/widgets/auth_toggle_switch.dart';
+import 'package:babosthapotro/features/auth/presentation/widgets/terms_and_conditions.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
 import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
-import 'package:babosthapotro/presentation/widgets/password_input_widget.dart';
+import 'package:babosthapotro/features/auth/presentation/widgets/password_input_widget.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -199,27 +200,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             const Gap(16),
 
                             // Terms
-                            RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                style: context.textStyle.bodySmall.copyWith(
-                                  color: colors.mutedForeground,
-                                ),
-                                children: [
-                                  const TextSpan(
-                                    text: 'By continuing, you agree to our ',
-                                  ),
-                                  TextSpan(
-                                    text: 'Terms and\nPrivacy Policy',
-                                    style: context.textStyle.bodySmall.copyWith(
-                                      color: colors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const TextSpan(text: '.'),
-                                ],
-                              ),
-                            ),
+                            const TermsAndConditions(),
                           ],
                         ),
                       ),

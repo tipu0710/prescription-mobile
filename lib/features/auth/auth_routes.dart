@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../presentation/pages/webview_page.dart';
 import 'presentation/pages/sign_in_page.dart';
 import 'presentation/pages/sign_up_page.dart';
 
@@ -27,6 +28,16 @@ class AuthRoutes {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
+    ),
+    GoRoute(
+      path: '/webview',
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>;
+        return WebViewPage(
+          url: extras['url'] as String,
+          title: extras['title'] as String,
+        );
+      },
     ),
   ];
 }
