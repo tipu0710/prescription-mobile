@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/signup_params.dart';
-import '../providers/auth_provider.dart';
+import '../providers/signup_controller.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
@@ -30,7 +30,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       ref
-          .read(authControllerProvider.notifier)
+          .read(signupControllerProvider.notifier)
           .signup(
             SignupParams(
               email: _emailController.text,
@@ -51,22 +51,25 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authControllerProvider, (previous, next) {
-      if (next is AsyncError) {
-        ToastService.showError(
-          context,
-          message: ApiErrorHandler.getErrorMessage(next.error),
-        );
-      } else if (next is AsyncData) {
-        ToastService.showSuccess(
-          context,
-          message: "Account created! Please verify your email.",
-        );
-        context.go('/verify', extra: _emailController.text);
-      }
+    ref.listen(signupControllerProvider, (previous, next) {
+      next.whenOrNull(
+        error: (error, stackTrace) {
+          ToastService.showError(
+            context,
+            message: ApiErrorHandler.getErrorMessage(error),
+          );
+        },
+        data: (_) {
+          ToastService.showSuccess(
+            context,
+            message: "Account created! Please verify your email.",
+          );
+          context.go('/verify', extra: _emailController.text);
+        },
+      );
     });
 
-    final state = ref.watch(authControllerProvider);
+    final state = ref.watch(signupControllerProvider);
     final isLoading = state.isLoading;
     final colors = context.appColor;
 

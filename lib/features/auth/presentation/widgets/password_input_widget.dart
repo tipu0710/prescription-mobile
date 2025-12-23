@@ -4,8 +4,15 @@ import 'package:flutter/material.dart';
 
 class PasswordInput extends StatefulWidget {
   final TextEditingController controller;
+  final String? hintText;
+  final String? Function(String?)? validator;
 
-  const PasswordInput({super.key, required this.controller});
+  const PasswordInput({
+    super.key,
+    required this.controller,
+    this.hintText,
+    this.validator,
+  });
 
   @override
   State<PasswordInput> createState() => _PasswordInputState();
@@ -20,7 +27,7 @@ class _PasswordInputState extends State<PasswordInput> {
     return CustomTextFormField(
       controller: widget.controller,
       obscureText: _obscureText,
-      hintText: 'Password',
+      hintText: widget.hintText ?? 'Password',
       fillColor: colors.input,
       borderColor: colors.border,
       focusedBorderColor: colors.primary,
@@ -36,12 +43,14 @@ class _PasswordInputState extends State<PasswordInput> {
         ),
         onPressed: () => setState(() => _obscureText = !_obscureText),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your password';
-        }
-        return null;
-      },
+      validator:
+          widget.validator ??
+          (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            }
+            return null;
+          },
     );
   }
 }

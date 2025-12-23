@@ -4,6 +4,8 @@ import '../../presentation/pages/webview_page.dart';
 import 'presentation/pages/sign_in_page.dart';
 import 'presentation/pages/sign_up_page.dart';
 import 'presentation/pages/otp_verification_page.dart';
+import 'presentation/pages/forgot_password_page.dart';
+import 'presentation/pages/reset_password_page.dart';
 
 class AuthRoutes {
   static const String signin = '/signin';
@@ -45,6 +47,17 @@ class AuthRoutes {
       builder: (context, state) {
         final email = state.extra as String;
         return OTPVerificationPage(email: email);
+      },
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => const ForgotPasswordPage(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      builder: (context, state) {
+        final email = state.extra as String;
+        return ResetPasswordPage(email: email);
       },
     ),
   ];

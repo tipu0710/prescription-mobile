@@ -11,7 +11,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:babosthapotro/core/network/api_error_handler.dart';
 import 'package:babosthapotro/core/utils/toast_service.dart';
-import '../providers/auth_provider.dart';
+import '../providers/login_controller.dart';
 
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
@@ -27,7 +27,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
       ref
-          .read(authControllerProvider.notifier)
+          .read(loginControllerProvider.notifier)
           .login(
             LoginParams(
               credential: _emailController.text,
@@ -164,12 +164,12 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             Consumer(
                               builder: (context, ref, child) {
                                 final authState = ref.watch(
-                                  authControllerProvider,
+                                  loginControllerProvider,
                                 );
                                 final isLoading = authState.isLoading;
 
                                 // Listen for success/error
-                                ref.listen(authControllerProvider, (
+                                ref.listen(loginControllerProvider, (
                                   previous,
                                   next,
                                 ) {
@@ -216,7 +216,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 Hero(
                   tag: 'auth-extra',
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () => context.push('/forgot-password'),
                     child: Text(
                       'Forgot password?',
                       style: context.textStyle.labelLarge.copyWith(

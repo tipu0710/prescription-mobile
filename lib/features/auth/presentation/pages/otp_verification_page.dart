@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:babosthapotro/core/network/api_error_handler.dart';
 import 'package:babosthapotro/core/utils/toast_service.dart';
 import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
@@ -10,7 +8,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 
-import '../providers/auth_provider.dart';
+import '../providers/otp_verification_controller.dart';
+import '../providers/otp_resend_timer_provider.dart';
 
 class OTPVerificationPage extends ConsumerStatefulWidget {
   final String email;
@@ -27,64 +26,38 @@ class _OTPVerificationPageState extends ConsumerState<OTPVerificationPage> {
   final _focusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
 
-  int _resendCountdown = 30;
-  Timer? _timer;
-  bool _canResend = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
-    if (mounted) {
-      setState(() {
-        _resendCountdown = 30;
-        _canResend = false;
-      });
-    }
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_resendCountdown > 0) {
-        if (mounted) {
-          setState(() {
-            _resendCountdown--;
-          });
-        }
-      } else {
-        _timer?.cancel();
-        if (mounted) {
-          setState(() {
-            _canResend = true;
-          });
-        }
-      }
-    });
-  }
-
   @override
   void dispose() {
     _pinController.dispose();
     _focusNode.dispose();
-    _timer?.cancel();
     super.dispose();
   }
 
-  void _handleVerify() {
+  Future<void> _handleVerify() async {
     if (_formKey.currentState!.validate()) {
-      ref
-          .read(authControllerProvider.notifier)
+      await ref
+          .read(otpVerificationControllerProvider.notifier)
           .verifyOtp(widget.email, _pinController.text);
+
+      if (mounted) {
+        final state = ref.read(otpVerificationControllerProvider);
+        if (state.hasValue && !state.hasError) {
+          ToastService.showSuccess(
+            context,
+            message: "Verification successful! Please login.",
+          );
+          context.go('/signin');
+        }
+      }
     }
   }
 
   void _handleResend() {
-    if (_canResend) {
+    if (ref.read(otpResendTimerProvider) == 0) {
       ref
-          .read(authControllerProvider.notifier)
+          .read(otpVerificationControllerProvider.notifier)
           .resendOtp(widget.email, 'VERIFICATION');
-      _startTimer();
+      ref.read(otpResendTimerProvider.notifier).restart();
       ToastService.showSuccess(context, message: "Code sent again!");
     }
   }
@@ -195,33 +168,17 @@ class _OTPVerificationPageState extends ConsumerState<OTPVerificationPage> {
 
                 Consumer(
                   builder: (context, ref, child) {
-                    final authState = ref.watch(authControllerProvider);
+                    final authState = ref.watch(
+                      otpVerificationControllerProvider,
+                    );
                     final isLoading = authState.isLoading;
 
-                    ref.listen(authControllerProvider, (previous, next) {
+                    ref.listen(otpVerificationControllerProvider, (
+                      previous,
+                      next,
+                    ) {
                       next.whenOrNull(
-                        data: (_) {
-                          // On verify success
-                          // We might need to check if the action was verify or resend.
-                          // Since both use same state, resend might trigger this too if we're not careful.
-                          // But resend creates a new state.
-                          // Ideally, we should handle resend separately or assume verify success means navigate.
-                          // For now, let's assume if we are on this page and get success, it's verification success
-                          // unless we handle resend success differently (e.g. just toast).
-                          // A better way is checking if the form is valid and filled?
-                          // Actually, resendOtp uses the same state.
-                          // Simplest fix: Add a boolean check or separate loading state.
-                          // For now, I'll rely on the fact that resendOtp also triggers success state.
-                          // This logic is flawed if resendOtp triggers success state.
-                          // I'll check AuthController again. It sets state.
-                          // If resendOtp succeeds, it sets state to AsyncValue.data(null).
-                          // So this listener will trigger navigation on resend success too!
-                          // Fix: Modify AuthController to not update main state for resend, or use local state for verify loading.
-                        },
                         error: (error, stackTrace) {
-                          if (error.toString().contains("resend")) {
-                            // Handle resend error specifically if possible
-                          }
                           ToastService.showError(
                             context,
                             message: ApiErrorHandler.getErrorMessage(error),
@@ -229,22 +186,6 @@ class _OTPVerificationPageState extends ConsumerState<OTPVerificationPage> {
                         },
                       );
                     });
-
-                    // Handling verify specifically?
-                    // Actually, let's just use local loading for verify to distinguish.
-                    // But AuthController manages the state.
-                    // I will modify the listen logic in a moment (using separate provider or checking context).
-                    // For this initial implementation, I'll update AuthController to return the result instead of void,
-                    // or just differentiate in the UI.
-                    // Actually, let's just make sure verify logic works.
-
-                    // IMPROVED LOGIC:
-                    // Since we can't easily distinguish verify vs resend success from the single state stream without extra info,
-                    // I will refactor AuthController slightly or just handle it here.
-                    // Wait, I can't change AuthController easily right now without more tool calls.
-                    // I will handle it by just showing success toast and navigating for now.
-                    // If resend navigates, that's a bug.
-                    // I will check AuthController implementation.
 
                     return CustomElevatedButton(
                       onPressed: _handleVerify,
@@ -255,28 +196,35 @@ class _OTPVerificationPageState extends ConsumerState<OTPVerificationPage> {
                 ),
 
                 const Gap(24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Didn't receive code?",
-                      style: context.textStyle.bodyMedium.copyWith(
-                        color: colors.mutedForeground,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _handleResend,
-                      child: Text(
-                        _canResend ? 'Resend' : 'Resend in $_resendCountdown s',
-                        style: context.textStyle.bodyMedium.copyWith(
-                          color: _canResend
-                              ? colors.primary
-                              : colors.mutedForeground,
-                          fontWeight: FontWeight.bold,
+                Consumer(
+                  builder: (context, ref, child) {
+                    final timerSeconds = ref.watch(otpResendTimerProvider);
+                    final canResend = timerSeconds == 0;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Didn't receive code?",
+                          style: context.textStyle.bodyMedium.copyWith(
+                            color: colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+                        TextButton(
+                          onPressed: canResend ? _handleResend : null,
+                          child: Text(
+                            canResend ? 'Resend' : 'Resend in $timerSeconds s',
+                            style: context.textStyle.bodyMedium.copyWith(
+                              color: canResend
+                                  ? colors.primary
+                                  : colors.mutedForeground,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
