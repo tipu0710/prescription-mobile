@@ -4,11 +4,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/network/dio_provider.dart';
 import '../../features/auth/data/models/login_request.dart';
+import '../../features/auth/data/models/login_response.dart';
 import '../../features/auth/data/models/signup_request.dart';
 import '../../features/auth/data/models/verification_request.dart';
 import '../../features/auth/data/models/resend_otp_request.dart';
 import '../../features/auth/data/models/password_reset_request_model.dart';
 import '../../features/auth/data/models/password_reset_confirm_request_model.dart';
+import '../../features/auth/data/models/user_profile.dart'; // import profile
+import '../../core/models/paginated_response.dart';
+import '../../features/home/data/models/sponsored.dart';
+import '../../features/home/data/models/prescription_template.dart';
 
 part 'api_client.g.dart';
 
@@ -18,7 +23,7 @@ abstract class ApiClient {
 
   // Auth
   @POST('/api/auth/login/')
-  Future<void> login(@Body() LoginRequest body);
+  Future<LoginResponse> login(@Body() LoginRequest body);
 
   @POST('/api/auth/register/')
   Future<void> signup(@Body() SignupRequest body);
@@ -36,6 +41,22 @@ abstract class ApiClient {
   Future<void> confirmPasswordReset(
     @Body() PasswordResetConfirmRequestModel body,
   );
+
+  @GET('/api/user/profile/')
+  Future<UserProfile> getProfile();
+
+  // Home
+  @GET('/api/prescriptions/templates/')
+  Future<PaginatedResponse<PrescriptionTemplate>> getTemplates(
+    @Query('search') String? search,
+    @Query('page') int? page,
+  );
+
+  @GET('/api/sponsored/serve/')
+  Future<Sponsored> getSponsored();
+
+  @DELETE('/api/prescriptions/templates/{id}/')
+  Future<void> deleteTemplate(@Path('id') int id);
 }
 
 @riverpod

@@ -142,6 +142,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                             CustomTextFormField(
                               controller: _emailController,
                               hintText: 'Email address',
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
                               prefixIcon: Icon(
                                 Icons.email_outlined,
                                 color: colors.mutedForeground,

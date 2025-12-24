@@ -36,19 +36,20 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
-}
 
-flutter { source = "../.." }
+    flavorDimensions += "default"
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "Babosthapotro Dev")
+        }
+        create("prod") {
+            dimension = "default"
+            resValue("string", "app_name", "Babosthapotro")
         }
     }
 }
 
-flutter {
-    source = "../.."
-}
+flutter { source = "../.." }

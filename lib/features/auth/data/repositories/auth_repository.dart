@@ -3,6 +3,7 @@ import '../../../../data/api/api_client.dart';
 import '../../domain/entities/login_params.dart';
 import '../../domain/entities/signup_params.dart';
 import '../models/login_request.dart';
+import '../models/login_response.dart';
 import '../models/signup_request.dart';
 import '../models/verification_request.dart';
 import '../models/resend_otp_request.dart';
@@ -12,7 +13,7 @@ import '../models/password_reset_confirm_request_model.dart';
 part 'auth_repository.g.dart';
 
 abstract class AuthRepository {
-  Future<void> login(LoginParams params);
+  Future<LoginResponse> login(LoginParams params);
   Future<void> signup(SignupParams params);
   Future<void> verifyOtp(String email, String code);
   Future<void> resendOtp(String email, String purpose);
@@ -30,8 +31,8 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._client);
 
   @override
-  Future<void> login(LoginParams params) async {
-    await _client.login(
+  Future<LoginResponse> login(LoginParams params) async {
+    return await _client.login(
       LoginRequest(credential: params.credential, password: params.password),
     );
   }
