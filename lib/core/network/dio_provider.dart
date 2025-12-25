@@ -34,6 +34,13 @@ Dio dio(Ref ref) {
         }
         return handler.next(options);
       },
+      onError: (DioException e, handler) async {
+        if (e.response?.statusCode == 401) {
+          final storage = ref.read(storageServiceProvider);
+          await storage.clearSession();
+        }
+        return handler.next(e);
+      },
     ),
   );
 

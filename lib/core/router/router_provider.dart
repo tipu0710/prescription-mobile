@@ -9,6 +9,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final storage = ref.watch(storageServiceProvider);
 
   return GoRouter(
+    refreshListenable: storage,
     initialLocation: AuthRoutes.signin,
     redirect: (context, state) {
       final token = storage.getToken();
