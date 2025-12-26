@@ -11,6 +11,8 @@ import '../../features/auth/data/models/resend_otp_request.dart';
 import '../../features/auth/data/models/password_reset_request_model.dart';
 import '../../features/auth/data/models/password_reset_confirm_request_model.dart';
 import '../../features/auth/data/models/user_profile.dart'; // import profile
+import '../../features/profile/data/models/degree.dart';
+import '../../features/profile/data/models/chamber.dart';
 import '../../core/models/paginated_response.dart';
 import '../../features/home/data/models/sponsored.dart';
 import '../../features/home/data/models/prescription_template.dart';
@@ -44,6 +46,12 @@ abstract class ApiClient {
 
   @GET('/api/user/profile/')
   Future<UserProfile> getProfile();
+
+  @GET('/api/user/degrees/')
+  Future<List<Degree>> getDegrees();
+
+  @GET('/api/user/chambers/')
+  Future<List<Chamber>> getChambers();
 
   // Home
   @GET('/api/prescriptions/templates/')
