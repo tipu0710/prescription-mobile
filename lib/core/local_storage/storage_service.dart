@@ -47,6 +47,11 @@ class StorageService extends ChangeNotifier {
     return sessions.isNotEmpty ? sessions.first.accessToken : null;
   }
 
+  String? getRefreshToken() {
+    final sessions = _box.getAll();
+    return sessions.isNotEmpty ? sessions.first.refreshToken : null;
+  }
+
   Future<void> clearSession() async {
     _box.removeAll();
     notifyListeners();

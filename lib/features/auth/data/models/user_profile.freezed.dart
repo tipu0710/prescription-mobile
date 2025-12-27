@@ -222,8 +222,8 @@ return $default(_that.email,_that.bmdcNumber,_that.fullName,_that.fullNameLocal,
 /// @nodoc
 @JsonSerializable()
 
-class _UserProfile implements UserProfile {
-  const _UserProfile({@JsonKey(name: 'email') required this.email, @JsonKey(name: 'bmdc_number') required this.bmdcNumber, @JsonKey(name: 'full_name') this.fullName, @JsonKey(name: 'full_name_local') this.fullNameLocal, @JsonKey(name: 'phone_number') this.phoneNumber, @JsonKey(name: 'phone_number_local') this.phoneNumberLocal, this.designation, @JsonKey(name: 'designation_local') this.designationLocal, this.expertise, @JsonKey(name: 'expertise_local') this.expertiseLocal, @JsonKey(name: 'working_place') this.workingPlace, @JsonKey(name: 'working_place_local') this.workingPlaceLocal, this.gender, @JsonKey(name: 'profile_picture') this.profilePicture});
+class _UserProfile extends UserProfile {
+  const _UserProfile({@JsonKey(name: 'email') required this.email, @JsonKey(name: 'bmdc_number') required this.bmdcNumber, @JsonKey(name: 'full_name') this.fullName, @JsonKey(name: 'full_name_local') this.fullNameLocal, @JsonKey(name: 'phone_number') this.phoneNumber, @JsonKey(name: 'phone_number_local') this.phoneNumberLocal, this.designation, @JsonKey(name: 'designation_local') this.designationLocal, this.expertise, @JsonKey(name: 'expertise_local') this.expertiseLocal, @JsonKey(name: 'working_place') this.workingPlace, @JsonKey(name: 'working_place_local') this.workingPlaceLocal, this.gender, @JsonKey(name: 'profile_picture') this.profilePicture}): super._();
   factory _UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);
 
 @override@JsonKey(name: 'email') final  String email;

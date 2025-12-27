@@ -4,11 +4,13 @@ import '../../domain/entities/login_params.dart';
 import '../../domain/entities/signup_params.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';
+import '../models/refresh_token_response.dart';
 import '../models/signup_request.dart';
 import '../models/verification_request.dart';
 import '../models/resend_otp_request.dart';
 import '../models/password_reset_request_model.dart';
 import '../models/password_reset_confirm_request_model.dart';
+import '../models/refresh_token_request.dart';
 
 part 'auth_repository.g.dart';
 
@@ -23,6 +25,7 @@ abstract class AuthRepository {
     String code,
     String newPassword,
   );
+  Future<RefreshTokenResponse> refreshToken(String refreshToken);
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -77,6 +80,13 @@ class AuthRepositoryImpl implements AuthRepository {
         code: code,
         newPassword: newPassword,
       ),
+    );
+  }
+
+  @override
+  Future<RefreshTokenResponse> refreshToken(String refreshToken) async {
+    return await _client.refreshToken(
+      RefreshTokenRequest(refresh: refreshToken),
     );
   }
 }

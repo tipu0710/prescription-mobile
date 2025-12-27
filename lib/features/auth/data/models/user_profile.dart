@@ -22,6 +22,16 @@ abstract class UserProfile with _$UserProfile {
     @JsonKey(name: 'profile_picture') String? profilePicture,
   }) = _UserProfile;
 
+  const UserProfile._();
+
+  bool get isComplete {
+    return (fullName?.isNotEmpty ?? false) &&
+        (phoneNumber?.isNotEmpty ?? false) &&
+        (designation?.isNotEmpty ?? false) &&
+        (workingPlace?.isNotEmpty ?? false) &&
+        (gender != null && gender.toString().isNotEmpty);
+  }
+
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);
 }

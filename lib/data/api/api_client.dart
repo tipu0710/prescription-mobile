@@ -5,11 +5,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/network/dio_provider.dart';
 import '../../features/auth/data/models/login_request.dart';
 import '../../features/auth/data/models/login_response.dart';
+import '../../features/auth/data/models/refresh_token_response.dart';
 import '../../features/auth/data/models/signup_request.dart';
 import '../../features/auth/data/models/verification_request.dart';
 import '../../features/auth/data/models/resend_otp_request.dart';
 import '../../features/auth/data/models/password_reset_request_model.dart';
 import '../../features/auth/data/models/password_reset_confirm_request_model.dart';
+import '../../features/auth/data/models/refresh_token_request.dart';
 import '../../features/auth/data/models/user_profile.dart'; // import profile
 import '../../features/profile/data/models/degree.dart';
 import '../../features/profile/data/models/chamber.dart';
@@ -44,8 +46,14 @@ abstract class ApiClient {
     @Body() PasswordResetConfirmRequestModel body,
   );
 
+  @POST('/api/auth/token/refresh/')
+  Future<RefreshTokenResponse> refreshToken(@Body() RefreshTokenRequest body);
+
   @GET('/api/user/profile/')
   Future<UserProfile> getProfile();
+
+  @PATCH('/api/user/profile/')
+  Future<UserProfile> updateProfile(@Body() FormData data);
 
   @GET('/api/user/degrees/')
   Future<List<Degree>> getDegrees();
