@@ -58,6 +58,15 @@ abstract class ApiClient {
   @GET('/api/user/degrees/')
   Future<List<Degree>> getDegrees();
 
+  @POST('/api/user/degrees/')
+  Future<Degree> createDegree(@Body() Degree degree);
+
+  @PATCH('/api/user/degrees/{id}/')
+  Future<Degree> updateDegree(@Path('id') int id, @Body() Degree degree);
+
+  @DELETE('/api/user/degrees/{id}/')
+  Future<void> deleteDegree(@Path('id') int id);
+
   @GET('/api/user/chambers/')
   Future<List<Chamber>> getChambers();
 
@@ -75,8 +84,14 @@ abstract class ApiClient {
   Future<void> deleteTemplate(@Path('id') int id);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 ApiClient apiClient(Ref ref) {
   final dio = ref.watch(dioProvider);
+  return ApiClient(dio);
+}
+
+@Riverpod(keepAlive: true)
+ApiClient authApiClient(Ref ref) {
+  final dio = ref.watch(tokenDioProvider);
   return ApiClient(dio);
 }

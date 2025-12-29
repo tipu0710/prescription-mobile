@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../local_storage/storage_service.dart';
 import '../config/environment_config.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
+import '../../features/auth/presentation/providers/auth_state_provider.dart';
 
 part 'dio_provider.g.dart';
 
@@ -28,6 +31,14 @@ Dio dio(Ref ref) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) {
+        // Don't add token for auth endpoints, especially refresh
+        if (options.path.contains('/token/refresh/') ||
+            options.path.contains('/login/') ||
+            options.path.contains('/register/') ||
+            options.path.contains('/password-reset/')) {
+          return handler.next(options);
+        }
+
         final storage = ref.read(storageServiceProvider);
         final token = storage.getToken();
         if (token != null) {
@@ -56,7 +67,9 @@ Dio dio(Ref ref) {
               // Some backends might not return a new refresh token, so we keep the old one if null
               final newRefresh = response.refresh ?? refreshToken;
 
-              await storage.saveToken(newAccess, refreshToken: newRefresh);
+              await ref
+                  .read(authStateProvider.notifier)
+                  .authenticate(newAccess, refreshToken: newRefresh);
 
               // Update the original request's headers with the new token
               e.requestOptions.headers['Authorization'] = 'Bearer $newAccess';
@@ -74,18 +87,40 @@ Dio dio(Ref ref) {
               );
 
               return handler.resolve(retryResponse);
-            } catch (_) {
-              // If refresh fails, fall through to clear session
+            } catch (ex) {
+              log("Refresh token failed ${e.response?.data}");
+              log(ex.toString());
             }
           }
 
           // If we reach here, it means either no refresh token or refresh failed
-          await storage.clearSession();
+          await ref.read(authStateProvider.notifier).unauthenticate();
         }
         return handler.next(e);
       },
     ),
   );
+
+  return dio;
+}
+
+@Riverpod(keepAlive: true)
+Dio tokenDio(Ref ref) {
+  final config = ref.watch(environmentConfigProvider);
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: config.baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    ),
+  );
+
+  // Add logging interceptor (optional, useful for debug)
+  dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
   return dio;
 }

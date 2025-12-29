@@ -9,9 +9,14 @@ import '../../features/profile/presentation/pages/account_page.dart';
 import '../../features/profile/presentation/widgets/profile_guard.dart';
 import '../../features/templates/presentation/pages/templates_page.dart';
 import '../local_storage/storage_service.dart';
+import '../../features/auth/presentation/providers/auth_state_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final storage = ref.watch(storageServiceProvider);
+  final authListener = ValueNotifier<bool>(ref.read(authStateProvider));
+  ref.listen(authStateProvider, (_, next) {
+    authListener.value = next;
+  });
 
   // We need a GlobalKey for the Navigator to use context in redirect if needed (though context is provided in redirect)
   final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -19,7 +24,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
-    refreshListenable: storage,
+    refreshListenable: authListener,
     initialLocation: AuthRoutes.signin,
     redirect: (context, state) {
       final token = storage.getToken();

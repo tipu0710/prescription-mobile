@@ -8,6 +8,7 @@ import '../providers/degrees_provider.dart';
 import '../widgets/profile_section.dart';
 import '../widgets/chambers_section.dart';
 import '../widgets/degrees_section.dart';
+import '../providers/chambers_provider.dart';
 
 class AccountPage extends ConsumerStatefulWidget {
   const AccountPage({super.key});
@@ -19,31 +20,12 @@ class AccountPage extends ConsumerStatefulWidget {
 class _AccountPageState extends ConsumerState<AccountPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _initialCheckDone = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-
-    // Initial navigation logic after frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkInitialNavigation();
-    });
-  }
-
-  void _checkInitialNavigation() {
-    if (!mounted) return;
-    // Use asData?.value to safely access AsyncValue
-    final profile = ref.read(userProvider).asData?.value;
-    final degrees = ref.read(degreesProvider).asData?.value ?? [];
-
-    if (profile?.isComplete ?? false) {
-      if (degrees.isNotEmpty) {
-        if (_tabController.index != 2) _tabController.animateTo(2); // Chambers
-      } else {
-        if (_tabController.index != 1) _tabController.animateTo(1); // Degrees
-      }
-    }
   }
 
   @override
@@ -56,6 +38,40 @@ class _AccountPageState extends ConsumerState<AccountPage>
   Widget build(BuildContext context) {
     final verificationAsync = ref.watch(profileVerificationProvider);
     final isComplete = verificationAsync.asData?.value ?? false;
+
+    // Wait for degrees and chambers to be loaded before running initial check
+    final degreesAsync = ref.watch(degreesProvider);
+    final chambersAsync = ref.watch(chambersProvider);
+
+    if (!_initialCheckDone &&
+        !degreesAsync.isLoading &&
+        !chambersAsync.isLoading) {
+      if (degreesAsync.hasValue && chambersAsync.hasValue) {
+        final profile = ref.read(userProvider).asData?.value;
+        final degrees = degreesAsync.value!;
+        final chambers = chambersAsync.value!;
+
+        if (profile?.isComplete ?? false) {
+          if (degrees.isEmpty) {
+            // Schedule the navigation to avoid "setState() during build"
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && _tabController.index != 1) {
+                _tabController.animateTo(1);
+              }
+            });
+          } else if (chambers.isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && _tabController.index != 2) {
+                _tabController.animateTo(2);
+              }
+            });
+          }
+        }
+        // Mark check as done so we don't re-run it
+        // We do this synchronously layout-wise to prevent re-entering
+        _initialCheckDone = true;
+      }
+    }
 
     // Listen to Profile Changes
     ref.listen(userProvider, (prev, next) {
@@ -74,18 +90,6 @@ class _AccountPageState extends ConsumerState<AccountPage>
     });
 
     // Listen to Degree Changes
-    ref.listen(degreesProvider, (prev, next) {
-      final prevEmpty = prev?.asData?.value.isEmpty ?? true;
-      final nextNotEmpty = next.asData?.value.isNotEmpty ?? false;
-
-      if (prevEmpty && nextNotEmpty) {
-        // Degrees just added
-        final profile = ref.read(userProvider).asData?.value;
-        if (profile?.isComplete ?? false) {
-          _tabController.animateTo(2);
-        }
-      }
-    });
 
     return Scaffold(
       appBar: AppBar(

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -12,7 +11,7 @@ StorageService storageService(Ref ref) {
   throw UnimplementedError('StorageService must be initialized in main.dart');
 }
 
-class StorageService extends ChangeNotifier {
+class StorageService {
   late final Store _store;
   late final Box<AuthSession> _box;
 
@@ -39,7 +38,6 @@ class StorageService extends ChangeNotifier {
       session.refreshToken = refreshToken;
     }
     _box.put(session);
-    notifyListeners();
   }
 
   String? getToken() {
@@ -54,6 +52,5 @@ class StorageService extends ChangeNotifier {
 
   Future<void> clearSession() async {
     _box.removeAll();
-    notifyListeners();
   }
 }

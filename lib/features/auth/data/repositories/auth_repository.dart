@@ -93,6 +93,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  final client = ref.watch(apiClientProvider);
+  final client = ref.watch(authApiClientProvider);
   return AuthRepositoryImpl(client);
 }

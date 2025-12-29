@@ -33,7 +33,7 @@ final class DegreesProvider
   Degrees create() => Degrees();
 }
 
-String _$degreesHash() => r'0d4a563e6c8073cff8f3716eff978d432c6f9ecc';
+String _$degreesHash() => r'9619ae5f0f59e0e9aec441050bee667bf88e59b6';
 
 abstract class _$Degrees extends $AsyncNotifier<List<Degree>> {
   FutureOr<List<Degree>> build();
