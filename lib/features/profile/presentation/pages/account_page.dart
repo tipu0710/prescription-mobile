@@ -1,3 +1,4 @@
+import 'package:babosthapotro/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/local_storage/storage_service.dart';
@@ -39,6 +40,13 @@ class _AccountPageState extends ConsumerState<AccountPage>
     final verificationAsync = ref.watch(profileVerificationProvider);
     final isComplete = verificationAsync.asData?.value ?? false;
 
+    // Current Theme Mode
+    final currentTheme = ref.watch(themeModeProvider);
+    final isDark =
+        currentTheme == ThemeMode.dark ||
+        (currentTheme == ThemeMode.system &&
+            MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+
     // Wait for degrees and chambers to be loaded before running initial check
     final degreesAsync = ref.watch(degreesProvider);
     final chambersAsync = ref.watch(chambersProvider);
@@ -49,7 +57,6 @@ class _AccountPageState extends ConsumerState<AccountPage>
       if (degreesAsync.hasValue && chambersAsync.hasValue) {
         final profile = ref.read(userProvider).asData?.value;
         final degrees = degreesAsync.value!;
-        final chambers = chambersAsync.value!;
 
         if (profile?.isComplete ?? false) {
           if (degrees.isEmpty) {
@@ -59,14 +66,9 @@ class _AccountPageState extends ConsumerState<AccountPage>
                 _tabController.animateTo(1);
               }
             });
-          } else if (chambers.isEmpty) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted && _tabController.index != 2) {
-                _tabController.animateTo(2);
-              }
-            });
           }
         }
+
         // Mark check as done so we don't re-run it
         // We do this synchronously layout-wise to prevent re-entering
         _initialCheckDone = true;
@@ -95,6 +97,16 @@ class _AccountPageState extends ConsumerState<AccountPage>
       appBar: AppBar(
         title: const Text('Account'),
         actions: [
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode : Icons.dark_mode_outlined,
+              color: context.appColor.foreground,
+            ),
+            onPressed: () {
+              final newMode = isDark ? ThemeMode.light : ThemeMode.dark;
+              ref.read(themeModeProvider.notifier).setThemeMode(newMode);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {

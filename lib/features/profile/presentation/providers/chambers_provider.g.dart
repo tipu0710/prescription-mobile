@@ -33,7 +33,7 @@ final class ChambersProvider
   Chambers create() => Chambers();
 }
 
-String _$chambersHash() => r'2775279e9a4a95920202b1f19ed5bfa7d5867ff4';
+String _$chambersHash() => r'ad3f2ee7455c0fd25351ed18d0c2261b31239efd';
 
 abstract class _$Chambers extends $AsyncNotifier<List<Chamber>> {
   FutureOr<List<Chamber>> build();

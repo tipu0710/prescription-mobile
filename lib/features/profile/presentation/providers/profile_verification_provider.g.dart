@@ -34,7 +34,7 @@ final class ProfileVerificationProvider
 }
 
 String _$profileVerificationHash() =>
-    r'a92c2be6a33fe346435b6e4100ce538e0e3c1c2f';
+    r'aedeea2772db11601431bc3da699f74412e72711';
 
 abstract class _$ProfileVerification extends $AsyncNotifier<bool> {
   FutureOr<bool> build();

@@ -70,6 +70,15 @@ abstract class ApiClient {
   @GET('/api/user/chambers/')
   Future<List<Chamber>> getChambers();
 
+  @POST('/api/user/chambers/')
+  Future<Chamber> createChamber(@Body() Chamber chamber);
+
+  @PATCH('/api/user/chambers/{id}/')
+  Future<Chamber> updateChamber(@Path('id') int id, @Body() Chamber chamber);
+
+  @DELETE('/api/user/chambers/{id}/')
+  Future<void> deleteChamber(@Path('id') int id);
+
   // Home
   @GET('/api/prescriptions/templates/')
   Future<PaginatedResponse<PrescriptionTemplate>> getTemplates(
