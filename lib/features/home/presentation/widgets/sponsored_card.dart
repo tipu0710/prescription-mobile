@@ -5,8 +5,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SponsoredCard extends StatelessWidget {
   final Sponsored sponsored;
+  final VoidCallback? onLearnMore;
 
-  const SponsoredCard({super.key, required this.sponsored});
+  const SponsoredCard({super.key, required this.sponsored, this.onLearnMore});
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +67,7 @@ class SponsoredCard extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () async {
+                      onLearnMore?.call();
                       final url = Uri.parse(sponsored.detailsUrl);
                       if (await canLaunchUrl(url)) {
                         await launchUrl(url);

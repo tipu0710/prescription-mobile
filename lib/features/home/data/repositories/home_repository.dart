@@ -4,6 +4,9 @@ import '../../../../core/models/paginated_response.dart';
 import '../../../../data/api/api_client.dart';
 import '../models/prescription_template.dart';
 import '../models/sponsored.dart';
+import '../models/create_template_request.dart';
+import '../models/medicine.dart';
+import '../models/investigation.dart';
 
 part 'home_repository.g.dart';
 
@@ -30,5 +33,23 @@ class HomeRepository {
 
   Future<void> deleteTemplate(int id) async {
     return _apiClient.deleteTemplate(id);
+  }
+
+  Future<void> createTemplate(CreateTemplateRequest request) async {
+    return _apiClient.createTemplate(request);
+  }
+
+  Future<PaginatedResponse<Medicine>> getMedicines({
+    String? search,
+    int? page,
+  }) async {
+    return _apiClient.getMedicines(search, page);
+  }
+
+  Future<List<Investigation>> getInvestigations({
+    String? search,
+    int? page,
+  }) async {
+    return _apiClient.getInvestigations(search, page);
   }
 }

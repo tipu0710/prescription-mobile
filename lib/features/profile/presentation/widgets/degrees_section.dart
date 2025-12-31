@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../theme/theme_extensions.dart';
 import '../../data/models/degree.dart';
 import '../providers/degrees_provider.dart';
+import 'package:babosthapotro/core/presentation/widgets/empty_state_widget.dart';
 
 class DegreesSection extends ConsumerWidget {
   const DegreesSection({super.key});
@@ -24,11 +25,12 @@ class DegreesSection extends ConsumerWidget {
         data: (degrees) {
           if (degrees.isEmpty) {
             return Center(
-              child: Text(
-                "No degrees added yet.",
-                style: context.textStyle.bodyMedium.copyWith(
-                  color: context.appColor.mutedForeground,
-                ),
+              child: EmptyStateWidget(
+                icon: Icons.school_outlined,
+                message: "No degrees added yet",
+                subMessage: "Add your educational qualifications.",
+                actionLabel: "Add Degree",
+                onAction: () => _showDegreeBottomSheet(context, null),
               ),
             );
           }
@@ -245,10 +247,7 @@ class _DegreeBottomSheetState extends ConsumerState<_DegreeBottomSheet> {
         }
       } catch (e) {
         if (mounted) {
-          ToastService.showError(
-            context,
-            message: "Failed to save: $e",
-          );
+          ToastService.showError(context, message: "Failed to save: $e");
         }
       }
     }

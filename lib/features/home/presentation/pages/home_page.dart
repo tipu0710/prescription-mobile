@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
+import 'package:babosthapotro/data/api/api_client.dart';
 import '../../data/repositories/home_repository.dart';
 import '../providers/home_provider.dart';
-import '../widgets/welcome_section.dart';
+import '../providers/template_provider.dart';
 import '../widgets/template_card.dart';
 import '../widgets/sponsored_card.dart';
+import 'package:babosthapotro/core/presentation/widgets/empty_state_widget.dart';
+import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
+import '../../../auth/presentation/providers/user_provider.dart';
+import '../widgets/template_list_shimmer.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -16,11 +22,37 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(templateListProvider.notifier).loadMore();
+    }
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
   }
 
   @override
@@ -28,31 +60,74 @@ class _HomePageState extends ConsumerState<HomePage> {
     final colors = context.appColor;
     final styles = context.textStyle;
 
-    final templatesState = ref.watch(
-      templateListProvider(
-        search: _searchController.text.isNotEmpty
-            ? _searchController.text
-            : null,
-      ),
-    );
+    final templatesState = ref.watch(templateListProvider);
     final sponsoredState = ref.watch(sponsoredProvider);
+    final userState = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: colors.scaffoldColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(templateListProvider);
+            ref
+                .read(templateListProvider.notifier)
+                .performSearch(_searchController.text);
             ref.invalidate(sponsoredProvider);
+            ref.invalidate(userProvider);
           },
           child: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.all(16.0),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    const WelcomeSection(),
+                    // Greeting Section
+                    userState.when(
+                      data: (user) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_getGreeting()},',
+                            style: styles.bodyMedium.copyWith(
+                              color: colors.mutedForeground,
+                            ),
+                          ),
+                          Text(
+                            "Dr. ${user.fullName ?? 'Doctor'}",
+                            style: styles.headlineMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.foreground,
+                            ),
+                          ),
+                        ],
+                      ),
+                      loading: () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: colors.muted.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 200,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: colors.muted.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                      error: (e, s) => const SizedBox.shrink(),
+                    ),
                     const SizedBox(height: 24),
+
                     Text(
                       'Your Prescription Templates',
                       style: styles.titleLarge.copyWith(
@@ -61,29 +136,20 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextField(
+
+                    CustomTextFormField(
                       controller: _searchController,
-                      onChanged: (value) {
-                        // Debounce could be added here
-                        setState(() {});
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search templates...',
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: colors.mutedForeground,
-                        ),
-                        filled: true,
-                        fillColor: colors.card,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(45),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 14,
-                        ),
+                      hintText: 'Search templates...',
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: colors.mutedForeground,
                       ),
+                      fillColor: colors.card,
+                      onChanged: (value) {
+                        ref
+                            .read(templateListProvider.notifier)
+                            .performSearch(value);
+                      },
                     ),
                     const SizedBox(height: 16),
                   ]),
@@ -92,17 +158,16 @@ class _HomePageState extends ConsumerState<HomePage> {
               templatesState.when(
                 data: (response) {
                   if (response.results.isEmpty) {
-                    return SliverToBoxAdapter(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Text(
-                            'No templates found.',
-                            style: styles.bodyMedium.copyWith(
-                              color: colors.mutedForeground,
-                            ),
-                          ),
-                        ),
+                    return SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: EmptyStateWidget(
+                        icon: Icons.description_outlined,
+                        message: 'No templates found',
+                        subMessage: 'Create a new template to get started.',
+                        actionLabel: 'Create Template',
+                        onAction: () {
+                          context.go('/templates');
+                        },
                       ),
                     );
                   }
@@ -151,7 +216,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 await ref
                                     .read(homeRepositoryProvider)
                                     .deleteTemplate(template.id);
-                                ref.invalidate(templateListProvider);
+                                ref
+                                    .read(templateListProvider.notifier)
+                                    .refresh();
                               }
                             },
                           ),
@@ -160,14 +227,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                   );
                 },
-                loading: () => const SliverToBoxAdapter(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
+                loading: () =>
+                    const SliverToBoxAdapter(child: TemplateListShimmer()),
                 error: (err, stack) => SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -184,7 +245,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     sponsoredState.when(
-                      data: (sponsored) => SponsoredCard(sponsored: sponsored),
+                      data: (sponsored) => SponsoredCard(
+                        sponsored: sponsored,
+                        onLearnMore: () {
+                          ref
+                              .read(apiClientProvider)
+                              .trackSponsoredClick(sponsored.id);
+                        },
+                      ),
                       loading: () =>
                           const SizedBox.shrink(), // Don't show loader for sponsored to be less intrusive
                       error: (err, stack) =>

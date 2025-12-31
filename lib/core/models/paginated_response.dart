@@ -6,10 +6,10 @@ part 'paginated_response.g.dart';
 @Freezed(genericArgumentFactories: true)
 abstract class PaginatedResponse<T> with _$PaginatedResponse<T> {
   const factory PaginatedResponse({
-    required int count,
+    @Default(0) int count,
     required String? next,
     required String? previous,
-    required List<T> results,
+    @Default([]) List<T> results,
   }) = _PaginatedResponse;
 
   factory PaginatedResponse.fromJson(

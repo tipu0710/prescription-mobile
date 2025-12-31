@@ -18,6 +18,9 @@ import '../../features/profile/data/models/chamber.dart';
 import '../../core/models/paginated_response.dart';
 import '../../features/home/data/models/sponsored.dart';
 import '../../features/home/data/models/prescription_template.dart';
+import '../../features/home/data/models/create_template_request.dart';
+import '../../features/home/data/models/medicine.dart';
+import '../../features/home/data/models/investigation.dart';
 
 part 'api_client.g.dart';
 
@@ -89,8 +92,26 @@ abstract class ApiClient {
   @GET('/api/sponsored/serve/')
   Future<Sponsored> getSponsored();
 
+  @POST('/api/sponsored/{id}/click/')
+  Future<void> trackSponsoredClick(@Path('id') int id);
+
   @DELETE('/api/prescriptions/templates/{id}/')
   Future<void> deleteTemplate(@Path('id') int id);
+
+  @POST('/api/prescriptions/templates/')
+  Future<void> createTemplate(@Body() CreateTemplateRequest body);
+
+  @GET('/api/medicines/')
+  Future<PaginatedResponse<Medicine>> getMedicines(
+    @Query('search') String? search,
+    @Query('page') int? page,
+  );
+
+  @GET('/api/investigations/search/')
+  Future<List<Investigation>> getInvestigations(
+    @Query('q') String? search,
+    @Query('page') int? page,
+  );
 }
 
 @Riverpod(keepAlive: true)

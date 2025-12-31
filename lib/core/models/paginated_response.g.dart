@@ -10,10 +10,11 @@ _PaginatedResponse<T> _$PaginatedResponseFromJson<T>(
   Map<String, dynamic> json,
   T Function(Object? json) fromJsonT,
 ) => _PaginatedResponse<T>(
-  count: (json['count'] as num).toInt(),
+  count: (json['count'] as num?)?.toInt() ?? 0,
   next: json['next'] as String?,
   previous: json['previous'] as String?,
-  results: (json['results'] as List<dynamic>).map(fromJsonT).toList(),
+  results:
+      (json['results'] as List<dynamic>?)?.map(fromJsonT).toList() ?? const [],
 );
 
 Map<String, dynamic> _$PaginatedResponseToJson<T>(

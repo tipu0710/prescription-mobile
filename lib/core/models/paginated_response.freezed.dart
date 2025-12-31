@@ -212,14 +212,14 @@ return $default(_that.count,_that.next,_that.previous,_that.results);case _:
 @JsonSerializable(genericArgumentFactories: true)
 
 class _PaginatedResponse<T> implements PaginatedResponse<T> {
-  const _PaginatedResponse({required this.count, required this.next, required this.previous, required final  List<T> results}): _results = results;
+  const _PaginatedResponse({this.count = 0, required this.next, required this.previous, final  List<T> results = const []}): _results = results;
   factory _PaginatedResponse.fromJson(Map<String, dynamic> json,T Function(Object?) fromJsonT) => _$PaginatedResponseFromJson(json,fromJsonT);
 
-@override final  int count;
+@override@JsonKey() final  int count;
 @override final  String? next;
 @override final  String? previous;
  final  List<T> _results;
-@override List<T> get results {
+@override@JsonKey() List<T> get results {
   if (_results is EqualUnmodifiableListView) return _results;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_results);

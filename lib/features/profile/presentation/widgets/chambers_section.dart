@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../theme/theme_extensions.dart';
 import '../../data/models/chamber.dart';
 import '../providers/chambers_provider.dart';
+import 'package:babosthapotro/core/presentation/widgets/empty_state_widget.dart';
 
 class ChambersSection extends ConsumerWidget {
   const ChambersSection({super.key});
@@ -24,11 +25,12 @@ class ChambersSection extends ConsumerWidget {
         data: (chambers) {
           if (chambers.isEmpty) {
             return Center(
-              child: Text(
-                "No chambers added yet.",
-                style: context.textStyle.bodyMedium.copyWith(
-                  color: context.appColor.mutedForeground,
-                ),
+              child: EmptyStateWidget(
+                icon: Icons.location_on_outlined,
+                message: "No chambers added yet",
+                subMessage: "Add your chamber details to get started.",
+                actionLabel: "Add Chamber",
+                onAction: () => _showChamberBottomSheet(context, null),
               ),
             );
           }
