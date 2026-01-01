@@ -430,7 +430,7 @@ class _AddMedicineBottomSheetState
                             final response = await ref
                                 .read(homeRepositoryProvider)
                                 .getMedicines(search: textEditingValue.text);
-                            return response.results;
+                            return response;
                           },
                       onSelected: (Medicine selection) {
                         setState(() => _selectedMedicine = selection);

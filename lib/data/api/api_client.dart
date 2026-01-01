@@ -101,9 +101,9 @@ abstract class ApiClient {
   @POST('/api/prescriptions/templates/')
   Future<void> createTemplate(@Body() CreateTemplateRequest body);
 
-  @GET('/api/medicines/')
-  Future<PaginatedResponse<Medicine>> getMedicines(
-    @Query('search') String? search,
+  @GET('/api/medicines/search/')
+  Future<List<Medicine>> getMedicines(
+    @Query('q') String? search,
     @Query('page') int? page,
   );
 

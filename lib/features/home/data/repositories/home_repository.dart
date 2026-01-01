@@ -39,10 +39,7 @@ class HomeRepository {
     return _apiClient.createTemplate(request);
   }
 
-  Future<PaginatedResponse<Medicine>> getMedicines({
-    String? search,
-    int? page,
-  }) async {
+  Future<List<Medicine>> getMedicines({String? search, int? page}) async {
     return _apiClient.getMedicines(search, page);
   }
 
