@@ -1,9 +1,5 @@
-class LocalizedString {
-  final String en;
-  final String bn;
-
-  const LocalizedString({required this.en, required this.bn});
-}
+import '../../domain/entities/dosage_suggestions.dart';
+import '../../domain/entities/localized_string.dart';
 
 const Map<String, String> banglaDigitMap = {
   '0': '০',
@@ -861,20 +857,6 @@ final Map<String, List<LocalizedString>> suppositoryRoutes = {
     const LocalizedString(en: "Use vaginally", bn: "যোনিপথে ব্যাবহার করবেন"),
   ],
 };
-
-class DosageSuggestions {
-  final List<String> dosages;
-  final List<String> notes;
-  final List<String> takingTimes;
-  final List<String> routes;
-
-  DosageSuggestions({
-    required this.dosages,
-    required this.notes,
-    required this.takingTimes,
-    required this.routes,
-  });
-}
 
 DosageSuggestions getDosageSuggestions({
   required String dosageForm,

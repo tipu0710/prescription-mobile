@@ -1,9 +1,10 @@
 import 'dart:io';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:dio/dio.dart';
-import '../../../../data/api/api_client.dart';
+
 import '../../../auth/presentation/providers/user_provider.dart';
-import '../../data/models/update_profile_request.dart';
+import '../../data/repositories/profile_repository_impl.dart';
+import '../../domain/entities/update_profile_request.dart';
 
 part 'profile_controller.g.dart';
 
@@ -20,26 +21,9 @@ class ProfileController extends _$ProfileController {
   }) async {
     state = const AsyncValue.loading();
     try {
-      final client = ref.read(apiClientProvider);
+      final repository = ref.read(profileRepositoryProvider);
 
-      final json = data.toJson();
-      json.removeWhere((key, value) => value == null);
-
-      final formData = FormData.fromMap(json);
-
-      if (profilePicture != null) {
-        formData.files.add(
-          MapEntry(
-            'profile_picture',
-            await MultipartFile.fromFile(
-              profilePicture.path,
-              filename: profilePicture.path.split(Platform.pathSeparator).last,
-            ),
-          ),
-        );
-      }
-
-      await client.updateProfile(formData);
+      await repository.updateProfile(data, profilePicture: profilePicture);
 
       // Refresh the user provider to reflect changes in the UI immediately
       ref.invalidate(userProvider);

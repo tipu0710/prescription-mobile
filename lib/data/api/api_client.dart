@@ -13,14 +13,14 @@ import '../../features/auth/data/models/password_reset_request_model.dart';
 import '../../features/auth/data/models/password_reset_confirm_request_model.dart';
 import '../../features/auth/data/models/refresh_token_request.dart';
 import '../../features/auth/data/models/user_profile.dart'; // import profile
-import '../../features/profile/data/models/degree.dart';
-import '../../features/profile/data/models/chamber.dart';
+import '../../features/profile/domain/entities/degree.dart';
+import '../../features/profile/domain/entities/chamber.dart';
 import '../../core/models/paginated_response.dart';
-import '../../features/home/data/models/sponsored.dart';
-import '../../features/home/data/models/prescription_template.dart';
-import '../../features/home/data/models/create_template_request.dart';
-import '../../features/home/data/models/medicine.dart';
-import '../../features/home/data/models/investigation.dart';
+import '../../features/home/domain/entities/sponsored.dart';
+import '../../features/home/domain/entities/prescription_template.dart';
+import '../../features/home/domain/entities/create_template_request.dart';
+import '../../features/home/domain/entities/medicine.dart';
+import '../../features/home/domain/entities/investigation.dart';
 
 part 'api_client.g.dart';
 

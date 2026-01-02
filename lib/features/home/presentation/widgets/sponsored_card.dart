@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
-import 'package:babosthapotro/features/home/data/models/sponsored.dart';
+import 'package:babosthapotro/features/home/domain/entities/sponsored.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SponsoredCard extends StatelessWidget {

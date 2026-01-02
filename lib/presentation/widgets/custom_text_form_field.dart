@@ -28,6 +28,7 @@ class CustomTextFormField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final bool filled;
+  final VoidCallback? onEditingComplete;
 
   const CustomTextFormField({
     super.key,
@@ -56,6 +57,7 @@ class CustomTextFormField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.filled = true,
+    this.onEditingComplete,
   });
 
   @override
@@ -75,6 +77,7 @@ class CustomTextFormField extends StatelessWidget {
       maxLines: maxLines,
       minLines: minLines,
       textInputAction: textInputAction,
+      onEditingComplete: onEditingComplete,
       style:
           style ??
           context.textStyle.bodyLarge.copyWith(color: colors.foreground),

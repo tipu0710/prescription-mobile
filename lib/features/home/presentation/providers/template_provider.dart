@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/models/paginated_response.dart';
-import '../../data/models/prescription_template.dart';
+import '../../domain/entities/prescription_template.dart';
 import '../../data/repositories/home_repository.dart';
 
 part 'template_provider.g.dart';

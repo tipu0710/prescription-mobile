@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../data/api/api_client.dart';
-import '../../data/models/degree.dart';
+import '../../domain/entities/degree.dart';
 
 part 'degrees_provider.g.dart';
 

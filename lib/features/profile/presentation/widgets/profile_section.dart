@@ -8,7 +8,7 @@ import '../../../../theme/theme_extensions.dart';
 import '../../../../presentation/widgets/toast_widget.dart';
 import '../../../auth/presentation/providers/user_provider.dart';
 import '../../../auth/data/models/user_profile.dart';
-import '../../data/models/update_profile_request.dart';
+import '../../domain/entities/update_profile_request.dart';
 import '../providers/profile_controller.dart';
 
 class ProfileSection extends ConsumerStatefulWidget {

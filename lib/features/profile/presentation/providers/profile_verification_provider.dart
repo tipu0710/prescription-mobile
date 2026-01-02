@@ -1,7 +1,7 @@
+import 'package:babosthapotro/features/profile/domain/entities/degree.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../data/api/api_client.dart';
 import '../../../auth/data/models/user_profile.dart';
-import '../../data/models/degree.dart';
 
 part 'profile_verification_provider.g.dart';
 

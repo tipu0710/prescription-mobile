@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../data/models/sponsored.dart';
+import '../../domain/entities/sponsored.dart';
 import '../../data/repositories/home_repository.dart';
 
 part 'home_provider.g.dart';

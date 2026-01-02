@@ -2,7 +2,7 @@ import 'package:babosthapotro/core/utils/toast_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../theme/theme_extensions.dart';
-import '../../data/models/chamber.dart';
+import '../../domain/entities/chamber.dart';
 import '../providers/chambers_provider.dart';
 import 'package:babosthapotro/core/presentation/widgets/empty_state_widget.dart';
 

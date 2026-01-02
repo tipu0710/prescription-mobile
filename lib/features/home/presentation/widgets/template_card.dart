@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
-import 'package:babosthapotro/features/home/data/models/prescription_template.dart';
+import 'package:babosthapotro/features/home/domain/entities/prescription_template.dart';
 
 class TemplateCard extends StatelessWidget {
   final PrescriptionTemplate template;
