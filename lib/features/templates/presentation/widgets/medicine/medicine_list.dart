@@ -96,7 +96,7 @@ class MedicineList extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => onEdit(item, index),
+                      onTap: null, // Disable row tap
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
