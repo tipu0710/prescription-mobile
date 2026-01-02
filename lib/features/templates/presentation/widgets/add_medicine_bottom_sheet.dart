@@ -1,11 +1,12 @@
+import 'package:babosthapotro/features/templates/data/datasources/dosage_data_source.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
+import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
 import 'package:babosthapotro/features/home/domain/entities/medicine.dart';
 import 'package:babosthapotro/features/home/data/repositories/home_repository.dart';
-import '../../data/repositories/templates_repository_impl.dart';
 import '../models/ui_medicine.dart';
 
 class AddMedicineBottomSheet extends ConsumerStatefulWidget {
@@ -29,6 +30,13 @@ class _AddMedicineBottomSheetState
   final _instructionController = TextEditingController();
   final _volumeController = TextEditingController();
 
+  final _dosageFocus = FocusNode();
+  final _takingTimeFocus = FocusNode();
+  final _durationFocus = FocusNode();
+  final _routeFocus = FocusNode();
+  final _instructionFocus = FocusNode();
+  final _volumeFocus = FocusNode();
+
   // Source of truth for suggestions (unfiltered)
   List<String> _sourceDosages = [];
   List<String> _sourceTakingTimes = [];
@@ -38,9 +46,7 @@ class _AddMedicineBottomSheetState
 
   // Displayed suggestions (filtered)
 
-  List<String> _suggestedTakingTimes = [];
   List<String> _suggestedRoutes = [];
-  List<String> _suggestedInstructions = [];
   List<String> _suggestedDurations = [];
 
   // Common routes (Fallback)
@@ -61,10 +67,8 @@ class _AddMedicineBottomSheetState
   @override
   void initState() {
     super.initState();
-    _takingTimeController.addListener(_filterTakingTimes);
-    _durationController.addListener(_filterDurations);
     _routeController.addListener(_filterRoutes);
-    _instructionController.addListener(_filterInstructions);
+    _durationController.addListener(_filterDurations);
 
     if (widget.initialMedicine != null) {
       final m = widget.initialMedicine!;
@@ -87,17 +91,20 @@ class _AddMedicineBottomSheetState
 
   @override
   void dispose() {
-    _takingTimeController.removeListener(_filterTakingTimes);
-    _durationController.removeListener(_filterDurations);
     _routeController.removeListener(_filterRoutes);
-    _instructionController.removeListener(_filterInstructions);
-    _instructionController.removeListener(_filterInstructions);
+    _durationController.removeListener(_filterDurations);
     _dosageController.dispose();
     _takingTimeController.dispose();
     _durationController.dispose();
     _routeController.dispose();
     _instructionController.dispose();
     _volumeController.dispose();
+    _dosageFocus.dispose();
+    _takingTimeFocus.dispose();
+    _durationFocus.dispose();
+    _routeFocus.dispose();
+    _instructionFocus.dispose();
+    _volumeFocus.dispose();
     super.dispose();
   }
 
@@ -164,6 +171,8 @@ class _AddMedicineBottomSheetState
     List<MapEntry<int, String>> items = source.asMap().entries.toList();
 
     items.sort((a, b) {
+      // 0. Selected item always creates a "match" context conceptually, but sorting logic puts matches first.
+
       int scoreA = _matchScore(
         a.value,
         qLower,
@@ -190,26 +199,19 @@ class _AddMedicineBottomSheetState
       return a.key.compareTo(b.key); // Ascending Index (Stable)
     });
 
+    // Filter out non-matches if query is present?
+    // The previous logic for routes used _sortSuggestions just for sorting.
+    // But for 'smart search' imply filtering too?
+    // User said: "If user inout 1 it will show 1 days...". Suggests filtering out non-matches.
+    // But `_sortSuggestions` returns everything sorted.
+    // Let's modify usage in the filter method to take top matches or filter.
+
+    // For now, let's keep _sortSuggestions as returning a sorted list.
+    // It's better to filter in the view or have _sortSuggestions optionally filter 0 scores.
+    // Actually, `_sortSuggestions` currently just sorts. 0 score items end up at bottom.
+    // If I want to HIDE non-matches, I should do `where` check.
+
     return items.map((e) => e.value).toList();
-  }
-
-  void _filterTakingTimes() {
-    setState(() {
-      _suggestedTakingTimes = _sortSuggestions(
-        _sourceTakingTimes,
-        _takingTimeController.text,
-      );
-    });
-  }
-
-  void _filterDurations() {
-    setState(() {
-      _suggestedDurations = _sortSuggestions(
-        _sourceDurations,
-        _durationController.text,
-        strict: true,
-      );
-    });
   }
 
   void _filterRoutes() {
@@ -219,24 +221,55 @@ class _AddMedicineBottomSheetState
     });
   }
 
-  void _filterInstructions() {
+  void _filterDurations() {
     setState(() {
-      _suggestedInstructions = _sortSuggestions(
-        _sourceInstructions,
-        _instructionController.text,
+      // If exact match found in source list, show full list (context restoration)
+      if (_sourceDurations.contains(_durationController.text)) {
+        _suggestedDurations = _sourceDurations;
+        return;
+      }
+
+      final sorted = _sortSuggestions(
+        _sourceDurations,
+        _durationController.text,
       );
+      // If we have text, we probably want to only show matches?
+      if (_durationController.text.isNotEmpty) {
+        // We can filter manually here or trust the sort?
+        // The user said "it will show". Usually implies hiding others.
+        // Let's filter out things with 0 match score if we want true "search".
+        // Re-using specific logic here.
+        final qLower = _durationController.text.toLowerCase();
+        final qDigitsOnly = qLower.replaceAll(RegExp(r'[^0-9০-৯]'), '');
+        final qBangla = _toBangla(qLower);
+        final qBanglaDigitsOnly = qDigitsOnly.isNotEmpty
+            ? _toBangla(qDigitsOnly)
+            : '';
+
+        _suggestedDurations = sorted.where((s) {
+          return _matchScore(
+                s,
+                qLower,
+                qBangla,
+                qDigitsOnly,
+                qBanglaDigitsOnly,
+              ) >
+              0;
+        }).toList();
+      } else {
+        _suggestedDurations = sorted;
+      }
     });
   }
 
   void _updateSuggestions(Medicine medicine, {bool clearValues = false}) {
-    final repository = ref.read(templatesRepositoryProvider);
-    final suggestions = repository.getDosageSuggestions(
+    final suggestions = getDosageSuggestions(
       dosageForm: medicine.dosageForm,
       genericName: medicine.genericName,
       lang: 'bn',
     );
 
-    final durations = repository.getDurationSuggestions('bn');
+    final durations = getDurationSuggestions('bn');
 
     // Clear values if requested (meaning new medicine selected manually)
     if (clearValues) {
@@ -255,10 +288,8 @@ class _AddMedicineBottomSheetState
       _sourceInstructions = suggestions.notes;
       _sourceDurations = durations;
 
-      _suggestedTakingTimes = _sourceTakingTimes;
       _suggestedRoutes = _sourceRoutes;
-      _suggestedInstructions = _sourceInstructions;
-      _suggestedDurations = _sourceDurations;
+      _suggestedDurations = _sourceDurations; // Initialize
 
       if (_sourceRoutes.isNotEmpty) {
         if (_sourceRoutes.length == 1) {
@@ -266,24 +297,21 @@ class _AddMedicineBottomSheetState
         }
       } else {
         if (_routeController.text.isEmpty &&
-            repository.isOralDosageForm(medicine.dosageForm)) {
+            isOralDosageForm(medicine.dosageForm)) {
           _routeController.text = 'Oral';
         }
       }
 
       // Trigger filters
 
-      _filterTakingTimes();
-      _filterDurations();
       _filterRoutes();
-      _filterInstructions();
+      _filterDurations();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColor;
-    final repository = ref.watch(templatesRepositoryProvider);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.95,
@@ -421,378 +449,536 @@ class _AddMedicineBottomSheetState
                               return CustomTextFormField(
                                 controller: controller,
                                 focusNode: focusNode,
-                                onEditingComplete: onEditingComplete,
                                 hintText: 'Search Medicine',
-                                suffixIcon: const Icon(Icons.search),
+                                validator: (v) => _selectedMedicine == null
+                                    ? 'Please select a medicine'
+                                    : null,
                               );
                             },
                       ),
-                    const Gap(16),
+                    const Gap(12),
 
-                    if (_selectedMedicine != null) ...[
-                      // If infusion, show volume field
-                      if (repository.isInfusion(
-                        _selectedMedicine!.dosageForm,
-                      )) ...[
-                        Text('Volume', style: context.textStyle.labelLarge),
-                        const Gap(8),
-                        Autocomplete<String>(
-                          optionsBuilder: (textEditingValue) {
-                            final volumes = repository.getInfusionVolumes();
-                            if (textEditingValue.text.isEmpty) {
-                              return volumes;
-                            }
-                            return volumes.where(
-                              (v) => v.toLowerCase().contains(
-                                textEditingValue.text.toLowerCase(),
+                    // Dosage
+                    Builder(
+                      builder: (context) {
+                        final dosageForm = _selectedMedicine?.dosageForm;
+                        final bIsInfusion = isInfusion(dosageForm);
+                        final bIsOral = isOralDosageForm(dosageForm);
+                        final bIsSuppository = isSuppository(dosageForm);
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (bIsInfusion) ...[
+                              CustomTextFormField(
+                                controller: _volumeController,
+                                focusNode: _volumeFocus,
+                                hintText: 'Volume (e.g. 1L)',
+                                textInputAction: TextInputAction.next,
                               ),
-                            );
-                          },
-                          onSelected: (value) {
-                            _volumeController.text = value;
-                          },
-                          fieldViewBuilder:
-                              (
-                                context,
-                                controller,
-                                focusNode,
-                                onEditingComplete,
-                              ) {
-                                if (_volumeController.text != controller.text) {
-                                  controller.text = _volumeController.text;
-                                }
-                                // Sync controller with _volumeController
-                                controller.addListener(() {
-                                  _volumeController.text = controller.text;
-                                });
-
-                                return CustomTextFormField(
-                                  controller: controller,
-                                  focusNode: focusNode,
-                                  onEditingComplete: onEditingComplete,
-                                  hintText: 'e.g. 500ml',
-                                );
-                              },
-                        ),
-                        const Gap(16),
-                      ],
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Dosage',
-                                  style: context.textStyle.labelLarge,
-                                ),
+                              if (infusionVolumes.isNotEmpty) ...[
                                 const Gap(8),
-                                Autocomplete<String>(
-                                  optionsBuilder: (textEditingValue) {
-                                    if (textEditingValue.text.isEmpty) {
-                                      return _sourceDosages;
-                                    }
-                                    return _sourceDosages.where(
-                                      (d) => d.contains(textEditingValue.text),
-                                    );
-                                  },
-                                  onSelected: (value) {
-                                    _dosageController.text = value;
-                                  },
-                                  fieldViewBuilder:
-                                      (
-                                        context,
-                                        controller,
-                                        focusNode,
-                                        onEditingComplete,
-                                      ) {
-                                        if (_dosageController.text !=
-                                            controller.text) {
-                                          controller.text =
-                                              _dosageController.text;
-                                        }
-                                        controller.addListener(() {
-                                          _dosageController.text =
-                                              controller.text;
-                                        });
-                                        return CustomTextFormField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          onEditingComplete: onEditingComplete,
-                                          hintText: 'e.g. 1+0+1',
-                                          validator: (v) =>
-                                              v == null || v.isEmpty
-                                              ? 'Required'
-                                              : null,
-                                        );
-                                      },
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Gap(16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Taking Time',
-                                  style: context.textStyle.labelLarge,
-                                ),
-                                const Gap(8),
-                                Autocomplete<String>(
-                                  optionsBuilder: (textEditingValue) {
-                                    return _suggestedTakingTimes;
-                                  },
-                                  onSelected: (value) {
-                                    _takingTimeController.text = value;
-                                  },
-                                  fieldViewBuilder:
-                                      (
-                                        context,
-                                        controller,
-                                        focusNode,
-                                        onEditingComplete,
-                                      ) {
-                                        if (_takingTimeController.text !=
-                                            controller.text) {
-                                          controller.text =
-                                              _takingTimeController.text;
-                                        }
-                                        controller.addListener(() {
-                                          _takingTimeController.text =
-                                              controller.text;
-                                        });
-                                        return CustomTextFormField(
-                                          controller: controller,
-                                          focusNode: focusNode,
-                                          onEditingComplete: onEditingComplete,
-                                          hintText: 'e.g. After meal',
-                                        );
-                                      },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Gap(16),
+                                SizedBox(
+                                  height: 40,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: infusionVolumes.length,
+                                    separatorBuilder: (_, _) => const Gap(8),
+                                    itemBuilder: (context, index) {
+                                      final vol = infusionVolumes[index];
+                                      final isSelected =
+                                          _volumeController.text == vol;
+                                      return ActionChip(
+                                        label: Text(
+                                          vol,
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : null,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          if (isSelected) {
+                                            _volumeController.clear();
+                                          } else {
+                                            _volumeController.text = vol;
+                                            _dosageFocus.requestFocus();
+                                          }
 
-                      Text('Duration', style: context.textStyle.labelLarge),
-                      const Gap(8),
-                      Autocomplete<String>(
-                        optionsBuilder: (textEditingValue) {
-                          return _suggestedDurations;
-                        },
-                        onSelected: (value) {
-                          _durationController.text = value;
-                        },
-                        fieldViewBuilder:
-                            (
-                              context,
-                              controller,
-                              focusNode,
-                              onEditingComplete,
-                            ) {
-                              if (_durationController.text != controller.text) {
-                                controller.text = _durationController.text;
-                              }
-                              controller.addListener(() {
-                                _durationController.text = controller.text;
-                              });
-                              return CustomTextFormField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                onEditingComplete: onEditingComplete,
-                                hintText: 'e.g. 7 days',
-                                validator: (v) =>
-                                    v == null || v.isEmpty ? 'Required' : null,
-                              );
-                            },
-                      ),
-                      const Gap(16),
-
-                      if (!repository.isSuppository(
-                        _selectedMedicine!.dosageForm,
-                      )) ...[
-                        Text('Route', style: context.textStyle.labelLarge),
-                        const Gap(8),
-                        Autocomplete<String>(
-                          optionsBuilder: (textEditingValue) {
-                            return _suggestedRoutes;
-                          },
-                          onSelected: (value) {
-                            _routeController.text = value;
-                          },
-                          fieldViewBuilder:
-                              (
-                                context,
-                                controller,
-                                focusNode,
-                                onEditingComplete,
-                              ) {
-                                if (_routeController.text != controller.text) {
-                                  controller.text = _routeController.text;
-                                }
-                                controller.addListener(() {
-                                  _routeController.text = controller.text;
-                                });
-                                return CustomTextFormField(
-                                  controller: controller,
-                                  focusNode: focusNode,
-                                  onEditingComplete: onEditingComplete,
-                                  hintText: 'e.g. Oral',
-                                  validator: (v) => v == null || v.isEmpty
-                                      ? 'Required'
-                                      : null,
-                                );
-                              },
-                        ),
-                        const Gap(16),
-                      ],
-
-                      Text('Instruction', style: context.textStyle.labelLarge),
-                      const Gap(8),
-                      Autocomplete<String>(
-                        optionsBuilder: (textEditingValue) {
-                          return _suggestedInstructions;
-                        },
-                        onSelected: (value) {
-                          _instructionController.text = value;
-                        },
-                        fieldViewBuilder:
-                            (
-                              context,
-                              controller,
-                              focusNode,
-                              onEditingComplete,
-                            ) {
-                              if (_instructionController.text !=
-                                  controller.text) {
-                                controller.text = _instructionController.text;
-                              }
-                              controller.addListener(() {
-                                _instructionController.text = controller.text;
-                              });
-                              return CustomTextFormField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                onEditingComplete: onEditingComplete,
-                                hintText: 'e.g. Shake well',
-                              );
-                            },
-                      ),
-                      const Gap(12),
-                      // Filter instruction chips logic
-                      if (_suggestedInstructions.isNotEmpty) ...[
-                        const Gap(8),
-                        SizedBox(
-                          height: 40,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _suggestedInstructions.length,
-                            separatorBuilder: (_, _) => const Gap(8),
-                            itemBuilder: (context, index) {
-                              final note = _suggestedInstructions[index];
-                              // Check if instruction contains note
-                              final isSelected = _instructionController.text
-                                  .contains(note);
-                              return ActionChip(
-                                label: Text(
-                                  note,
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.white : null,
+                                          _volumeController.selection =
+                                              TextSelection.fromPosition(
+                                                TextPosition(
+                                                  offset: _volumeController
+                                                      .text
+                                                      .length,
+                                                ),
+                                              );
+                                          setState(() {});
+                                        },
+                                        backgroundColor: isSelected
+                                            ? colors.primary
+                                            : colors.card,
+                                        side: BorderSide(
+                                          color: isSelected
+                                              ? colors.primary
+                                              : colors.border,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
-                                onPressed: () {
-                                  if (isSelected) {
-                                    if (_instructionController.text.contains(
-                                      ', $note',
-                                    )) {
-                                      _instructionController.text =
-                                          _instructionController.text
-                                              .replaceAll(', $note', '');
-                                    } else if (_instructionController.text
-                                        .contains('$note, ')) {
-                                      _instructionController.text =
-                                          _instructionController.text
-                                              .replaceAll('$note, ', '');
-                                    } else {
-                                      _instructionController.text =
-                                          _instructionController.text
-                                              .replaceAll(note, '');
+                              ],
+                              const Gap(12),
+                            ],
+
+                            Autocomplete<String>(
+                              key: ValueKey(_selectedMedicine),
+                              initialValue: TextEditingValue(
+                                text: _dosageController.text,
+                              ),
+                              optionsBuilder: (TextEditingValue textEditingValue) {
+                                final query = textEditingValue.text;
+                                final queryBangla = _toBangla(query);
+                                final queryDigitsOnly = query.replaceAll(
+                                  RegExp(r'[^0-9০-৯]'),
+                                  '',
+                                );
+
+                                // Create scores for sorting
+                                int matchScore(String source) {
+                                  final sLower = source.toLowerCase();
+
+                                  // 1. Exact match (Highest Priority)
+                                  if (sLower == query ||
+                                      sLower == queryBangla) {
+                                    return 3;
+                                  }
+
+                                  // 2. Smart Digit Exact match
+                                  if (queryDigitsOnly.isNotEmpty) {
+                                    final sourceDigitsOnly = source.replaceAll(
+                                      RegExp(r'[^0-9০-৯]'),
+                                      '',
+                                    );
+                                    final sourceNorm = _toBangla(
+                                      sourceDigitsOnly,
+                                    );
+                                    final queryNorm = _toBangla(
+                                      queryDigitsOnly,
+                                    );
+
+                                    // 2a. Exact Digit Match
+                                    if (sourceNorm == queryNorm) {
+                                      return 3; // Treat as exact match
                                     }
-                                  } else {
-                                    if (_instructionController.text.isEmpty) {
-                                      _instructionController.text = note;
-                                    } else {
-                                      _instructionController.text =
-                                          '${_instructionController.text}, $note';
+
+                                    // 2b. Partial Digit Match (Prefix only)
+                                    if (sourceNorm.startsWith(queryNorm)) {
+                                      return 2; // Treat as partial match
                                     }
                                   }
 
-                                  _instructionController
-                                      .selection = TextSelection.fromPosition(
-                                    TextPosition(
-                                      offset:
-                                          _instructionController.text.length,
-                                    ),
-                                  );
-                                },
-                                backgroundColor: isSelected
-                                    ? colors.primary
-                                    : colors.card,
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? colors.primary
-                                      : colors.border,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                                  // 3. Contains match
+                                  if (sLower.contains(query) ||
+                                      sLower.contains(queryBangla)) {
+                                    return 2;
+                                  }
 
-                      const Gap(24),
+                                  return 0;
+                                }
 
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              final medicine = UiMedicine(
-                                medicine: _selectedMedicine!,
-                                volume: _volumeController.text.isNotEmpty
-                                    ? _volumeController.text
-                                    : null,
-                                dosage: _dosageController.text,
-                                takingTime: _takingTimeController.text,
-                                duration: _durationController.text,
-                                route: _routeController.text,
-                                instruction: _instructionController.text,
-                              );
-                              Navigator.pop(context, medicine);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: colors.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                                final matches = _sourceDosages.where((option) {
+                                  if (bIsInfusion) {
+                                    return true; // Show all if infusion? Or follow strict logic? existing logic implies strict true for dosages.
+                                  }
+                                  // Reusing the strict logic from _sortSuggestions indirectly by just filtering here?
+                                  // Wait, simpler: Reuse the logic from `_filterDosages` but return list.
+                                  // Actually _filterDosages sets state. I should inline the logic or extract it.
+                                  // Let's inline a simplified version or the robust version.
+
+                                  // For dosages we want Strict matching usually?
+                                  // Existing code called _sortSuggestions(..., strict: true).
+                                  // So we filter out non-matches.
+                                  return matchScore(option) > 0;
+                                }).toList();
+
+                                // Sort
+                                matches.sort((a, b) {
+                                  final scoreA = matchScore(a);
+                                  final scoreB = matchScore(b);
+                                  if (scoreA != scoreB) {
+                                    return scoreB.compareTo(scoreA);
+                                  }
+                                  return a.compareTo(
+                                    b,
+                                  ); // Alphabetical tie-breaker
+                                });
+
+                                return matches;
+                              },
+                              onSelected: (String selection) {
+                                _dosageController.text = selection;
+                                // Move to next focus
+                                if (bIsOral) {
+                                  _takingTimeFocus.requestFocus();
+                                } else {
+                                  _durationFocus.requestFocus();
+                                }
+                              },
+                              fieldViewBuilder:
+                                  (
+                                    context,
+                                    controller,
+                                    focusNode,
+                                    onEditingComplete,
+                                  ) {
+                                    return CustomTextFormField(
+                                      controller: controller,
+                                      focusNode:
+                                          focusNode, // Autocomplete provides this, but we can manage requestFocus manually
+                                      textInputAction: TextInputAction.next,
+                                      hintText: bIsInfusion
+                                          ? 'Route + Dosage'
+                                          : 'Dosage (e.g. 1+0+1)',
+                                      validator: (v) =>
+                                          v!.isEmpty ? 'Required' : null,
+                                      onChanged: (val) {
+                                        // Sync with master controller
+                                        _dosageController.text = val;
+                                      },
+                                    );
+                                  },
+                              optionsViewBuilder:
+                                  (context, onSelected, options) {
+                                    return Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Material(
+                                        elevation: 4,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        color: colors.card,
+                                        child: ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: 200,
+                                            maxWidth:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.width -
+                                                32,
+                                          ),
+                                          child: ListView.separated(
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            itemCount: options.length,
+                                            separatorBuilder: (_, _) => Divider(
+                                              height: 1,
+                                              color: colors.border,
+                                            ),
+                                            itemBuilder: (context, index) {
+                                              final option = options.elementAt(
+                                                index,
+                                              );
+                                              return InkWell(
+                                                onTap: () => onSelected(option),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    12,
+                                                  ),
+                                                  child: Text(
+                                                    option,
+                                                    style: context
+                                                        .textStyle
+                                                        .bodyMedium,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                             ),
-                          ),
-                          child: const Text('Add Medicine'),
+
+                            if (bIsOral) ...[
+                              const Gap(12),
+                              CustomTextFormField(
+                                controller: _takingTimeController,
+                                focusNode: _takingTimeFocus,
+                                textInputAction: TextInputAction.next,
+                                hintText: 'Taking time (e.g. After meal)',
+                              ),
+                              if (_sourceTakingTimes.isNotEmpty) ...[
+                                const Gap(8),
+                                SizedBox(
+                                  height: 40,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _sourceTakingTimes.length,
+                                    separatorBuilder: (_, _) => const Gap(8),
+                                    itemBuilder: (context, index) {
+                                      final time = _sourceTakingTimes[index];
+                                      final isSelected =
+                                          _takingTimeController.text == time;
+                                      return ActionChip(
+                                        label: Text(
+                                          time,
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : null,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          if (isSelected) {
+                                            _takingTimeController.clear();
+                                          } else {
+                                            _takingTimeController.text = time;
+                                            _durationFocus.requestFocus();
+                                          }
+
+                                          _takingTimeController.selection =
+                                              TextSelection.fromPosition(
+                                                TextPosition(
+                                                  offset: _takingTimeController
+                                                      .text
+                                                      .length,
+                                                ),
+                                              );
+                                          setState(() {});
+                                        },
+                                        backgroundColor: isSelected
+                                            ? colors.primary
+                                            : colors.card,
+                                        side: BorderSide(
+                                          color: isSelected
+                                              ? colors.primary
+                                              : colors.border,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ],
+
+                            const Gap(12),
+                            CustomTextFormField(
+                              controller: _durationController,
+                              focusNode: _durationFocus,
+                              hintText: 'Duration (e.g. 7 days)',
+                              textInputAction: TextInputAction.next,
+                            ),
+                            if (_suggestedDurations.isNotEmpty) ...[
+                              const Gap(8),
+                              SizedBox(
+                                height: 40,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _suggestedDurations.length,
+                                  separatorBuilder: (_, _) => const Gap(8),
+                                  itemBuilder: (context, index) {
+                                    final duration = _suggestedDurations[index];
+                                    final isSelected =
+                                        _durationController.text == duration;
+                                    return ActionChip(
+                                      label: Text(
+                                        duration,
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : null,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        if (isSelected) {
+                                          _durationController.clear();
+                                        } else {
+                                          _durationController.text = duration;
+                                          if (bIsSuppository) {
+                                            _routeFocus.requestFocus();
+                                          } else {
+                                            _instructionFocus.requestFocus();
+                                          }
+                                        }
+
+                                        _durationController.selection =
+                                            TextSelection.fromPosition(
+                                              TextPosition(
+                                                offset: _durationController
+                                                    .text
+                                                    .length,
+                                              ),
+                                            );
+                                        setState(() {});
+                                      },
+                                      backgroundColor: isSelected
+                                          ? colors.primary
+                                          : colors.card,
+                                      side: BorderSide(
+                                        color: isSelected
+                                            ? colors.primary
+                                            : colors.border,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+
+                            if (bIsSuppository) ...[
+                              const Gap(12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomTextFormField(
+                                      controller: _routeController,
+                                      focusNode: _routeFocus,
+                                      textInputAction: TextInputAction.next,
+                                      hintText: 'Route',
+                                    ),
+                                  ),
+                                  if (_suggestedRoutes.isNotEmpty) ...[
+                                    const Gap(8),
+                                    PopupMenuButton<String>(
+                                      icon: const Icon(
+                                        Icons.arrow_drop_down_circle_outlined,
+                                      ),
+                                      onSelected: (String value) {
+                                        _routeController.text = value;
+                                        _routeController.selection =
+                                            TextSelection.fromPosition(
+                                              TextPosition(
+                                                offset: _routeController
+                                                    .text
+                                                    .length,
+                                              ),
+                                            );
+                                        _instructionFocus.requestFocus();
+                                      },
+                                      itemBuilder: (BuildContext context) {
+                                        return _suggestedRoutes.map((
+                                          String choice,
+                                        ) {
+                                          final isSelected =
+                                              _routeController.text == choice;
+                                          return PopupMenuItem<String>(
+                                            value: choice,
+                                            child: Text(
+                                              choice,
+                                              style: TextStyle(
+                                                color: isSelected
+                                                    ? colors.primary
+                                                    : null,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : null,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList();
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+
+                    const Gap(12),
+
+                    CustomTextFormField(
+                      controller: _instructionController,
+                      focusNode: _instructionFocus,
+                      textInputAction: TextInputAction.done,
+                      hintText: 'Instruction (Optional)',
+                    ),
+                    if (_sourceInstructions.isNotEmpty) ...[
+                      const Gap(8),
+                      SizedBox(
+                        height: 40,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _sourceInstructions.length,
+                          separatorBuilder: (_, _) => const Gap(8),
+                          itemBuilder: (context, index) {
+                            final note = _sourceInstructions[index];
+                            final isSelected =
+                                _instructionController.text == note;
+                            return ActionChip(
+                              label: Text(
+                                note,
+                                style: TextStyle(
+                                  color: isSelected ? Colors.white : null,
+                                ),
+                              ),
+                              onPressed: () {
+                                if (isSelected) {
+                                  _instructionController.clear();
+                                } else {
+                                  _instructionController.text = note;
+                                  // No Next field, maybe close keyboard or do nothing?
+                                  // usually last field just keeps focus or unfocuses.
+                                }
+
+                                _instructionController
+                                    .selection = TextSelection.fromPosition(
+                                  TextPosition(
+                                    offset: _instructionController.text.length,
+                                  ),
+                                );
+                                setState(() {});
+                              },
+                              backgroundColor: isSelected
+                                  ? colors.primary
+                                  : colors.card,
+                              side: BorderSide(
+                                color: isSelected
+                                    ? colors.primary
+                                    : colors.border,
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      const Gap(40), // Bottom padding
                     ],
                   ],
                 ),
               ),
             ),
           ),
+          const Gap(16),
+          CustomElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate() &&
+                  _selectedMedicine != null) {
+                Navigator.pop(
+                  context,
+                  UiMedicine(
+                    medicine: _selectedMedicine!,
+                    volume: _volumeController.text.isNotEmpty
+                        ? _volumeController.text
+                        : null,
+                    dosage: _dosageController.text,
+                    takingTime: _takingTimeController.text,
+                    duration: _durationController.text,
+                    route: _routeController.text.isEmpty
+                        ? 'Oral'
+                        : _routeController.text,
+                    instruction: _instructionController.text,
+                  ),
+                );
+              }
+            },
+            text: 'Add Medicine',
+          ),
+          const Gap(16),
         ],
       ),
     );

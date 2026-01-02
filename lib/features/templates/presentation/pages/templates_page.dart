@@ -12,6 +12,8 @@ import 'package:babosthapotro/features/home/data/repositories/home_repository.da
 import '../models/ui_medicine.dart';
 import '../widgets/add_medicine_bottom_sheet.dart';
 import '../widgets/add_investigation_bottom_sheet.dart';
+import '../widgets/investigation_list.dart';
+import '../widgets/medicine_list.dart';
 
 class TemplatesPage extends ConsumerStatefulWidget {
   const TemplatesPage({super.key});
@@ -133,9 +135,18 @@ class _TemplatesPageState extends ConsumerState<TemplatesPage> {
     }
   }
 
+  void _onReorderMedicine(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final UiMedicine item = _medicines.removeAt(oldIndex);
+      _medicines.insert(newIndex, item);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColor;
     final styles = context.textStyle;
     final sponsoredState = ref.watch(sponsoredProvider);
 
@@ -166,155 +177,26 @@ class _TemplatesPageState extends ConsumerState<TemplatesPage> {
               ),
               const Gap(24),
 
-              // Investigations
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Investigations',
-                    style: styles.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _addInvestigation,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add'),
-                  ),
-                ],
+              // Investigations List
+              InvestigationList(
+                investigations: _investigations,
+                onAdd: _addInvestigation,
+                onDelete: (index) =>
+                    setState(() => _investigations.removeAt(index)),
               ),
-              if (_investigations.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colors.card,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: colors.border),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'No investigations added',
-                      style: styles.bodyMedium.copyWith(
-                        color: colors.mutedForeground,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _investigations.length,
-                  separatorBuilder: (_, _) => const Gap(8),
-                  itemBuilder: (context, index) {
-                    final item = _investigations[index];
-                    return Card(
-                      color: colors.card,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: colors.border),
-                      ),
-                      child: ListTile(
-                        title: Text(item.name, style: styles.bodyLarge),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, color: colors.destructive),
-                          onPressed: () =>
-                              setState(() => _investigations.removeAt(index)),
-                        ),
-                      ),
-                    );
-                  },
-                ),
               const Gap(24),
-              // Medicines
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Medicines',
-                    style: styles.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => _addOrEditMedicine(),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add'),
-                  ),
-                ],
-              ),
-              if (_medicines.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colors.card,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: colors.border),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'No medicines added',
-                      style: styles.bodyMedium.copyWith(
-                        color: colors.mutedForeground,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _medicines.length,
-                  separatorBuilder: (_, _) => const Gap(8),
-                  itemBuilder: (context, index) {
-                    final item = _medicines[index];
-                    return Card(
-                      color: colors.card,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: colors.border),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          '${item.medicine.dosageForm} ${item.medicine.brandName} ${item.medicine.strength}',
-                          style: styles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          [
-                            if (item.volume != null) item.volume,
-                            item.dosage,
-                            if (item.takingTime.isNotEmpty) item.takingTime,
-                            item.duration,
-                            if (item.instruction.isNotEmpty) item.instruction,
-                          ].join(' • '),
-                          style: styles.bodySmall,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit, color: colors.primary),
-                              onPressed: () => _addOrEditMedicine(
-                                existingMedicine: item,
-                                index: index,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: colors.destructive,
-                              ),
-                              onPressed: () =>
-                                  setState(() => _medicines.removeAt(index)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+
+              // Medicines List
+              MedicineList(
+                medicines: _medicines,
+                onAdd: () => _addOrEditMedicine(),
+                onEdit: (medicine, index) => _addOrEditMedicine(
+                  existingMedicine: medicine,
+                  index: index,
                 ),
+                onDelete: (index) => setState(() => _medicines.removeAt(index)),
+                onReorder: _onReorderMedicine,
+              ),
               const Gap(24),
 
               Text('Advice', style: styles.labelLarge),
@@ -339,8 +221,8 @@ class _TemplatesPageState extends ConsumerState<TemplatesPage> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onPrimary,
+                    backgroundColor: context.appColor.primary,
+                    foregroundColor: context.appColor.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
