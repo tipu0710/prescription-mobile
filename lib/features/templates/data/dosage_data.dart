@@ -843,6 +843,16 @@ bool isOralDosageForm(String? dosageForm) {
   return oralDosageForms.contains(dosageForm);
 }
 
+bool isInfusion(String? dosageForm) {
+  if (dosageForm == null) return false;
+  return dosageForm.toLowerCase().contains("infusion");
+}
+
+bool isSuppository(String? dosageForm) {
+  if (dosageForm == null) return false;
+  return dosageForm.toLowerCase().contains("suppository");
+}
+
 final Map<String, List<LocalizedString>> suppositoryRoutes = {
   "Suppository": [
     const LocalizedString(en: "Use rectally", bn: "পায়ুপথে ব্যবহার করবেন"),
