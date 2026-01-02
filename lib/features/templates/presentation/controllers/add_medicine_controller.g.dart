@@ -42,7 +42,7 @@ final class AddMedicineControllerProvider
 }
 
 String _$addMedicineControllerHash() =>
-    r'7d70a9f8145687d1149ed346b1f710b3e0aa3588';
+    r'5c5f472a648502a5f1ab2d26d5a9649c672edba8';
 
 abstract class _$AddMedicineController extends $Notifier<AddMedicineState> {
   AddMedicineState build();

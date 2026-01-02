@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
-import '../models/ui_medicine.dart';
+import '../../models/ui_medicine.dart';
 
 class MedicineList extends StatelessWidget {
   final List<UiMedicine> medicines;

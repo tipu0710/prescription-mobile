@@ -1,8 +1,8 @@
 import 'package:babosthapotro/features/templates/presentation/controllers/add_medicine_controller.dart';
 import 'package:babosthapotro/features/templates/presentation/models/ui_medicine.dart';
-import 'package:babosthapotro/features/templates/presentation/widgets/dosage_route_section.dart';
-import 'package:babosthapotro/features/templates/presentation/widgets/manual_entry_section.dart';
-import 'package:babosthapotro/features/templates/presentation/widgets/medicine_search_section.dart';
+import 'package:babosthapotro/features/templates/presentation/widgets/medicine/dosage_route_section.dart';
+import 'package:babosthapotro/features/templates/presentation/widgets/medicine/manual_entry_section.dart';
+import 'package:babosthapotro/features/templates/presentation/widgets/medicine/medicine_search_section.dart';
 import 'package:babosthapotro/presentation/widgets/custom_elevated_button.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
@@ -59,11 +59,12 @@ class _AddMedicineBottomSheetState
   Widget build(BuildContext context) {
     final state = ref.watch(addMedicineControllerProvider);
     final notifier = ref.read(addMedicineControllerProvider.notifier);
-    
+
     // Only show manual entry if explicit manual entry OR no search results found while searching.
-    // Logic from original: 
+    // Logic from original:
     // if (_isManualEntry && (_searchQuery.isEmpty || !_hasSearchResults))
-    final showManualEntry = state.isManualEntry && 
+    final showManualEntry =
+        state.isManualEntry &&
         (state.searchQuery.isEmpty || !state.hasSearchResults);
 
     return Container(
@@ -102,12 +103,12 @@ class _AddMedicineBottomSheetState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MedicineSearchSection(dosageFocus: _dosageFocus),
-                    
+
                     const Gap(12),
-                    
+
                     if (showManualEntry) ...[
                       ManualEntrySection(
-                        dosageFocus: _dosageFocus, 
+                        dosageFocus: _dosageFocus,
                         strengthFocus: _strengthFocus,
                         formFocus: _formFocus,
                       ),
@@ -117,8 +118,8 @@ class _AddMedicineBottomSheetState
                     DosageRouteSection(
                       dosageFocus: _dosageFocus,
                       takingTimeFocus: _takingTimeFocus,
-                      durationFocus: _durationFocus, 
-                      routeFocus: _routeFocus, 
+                      durationFocus: _durationFocus,
+                      routeFocus: _routeFocus,
                       instructionFocus: _instructionFocus,
                       volumeFocus: _volumeFocus,
                     ),
@@ -131,9 +132,11 @@ class _AddMedicineBottomSheetState
           CustomElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                final result = await notifier.saveMedicine(widget.initialMedicine);
+                final result = await notifier.saveMedicine(
+                  widget.initialMedicine,
+                );
                 if (context.mounted) {
-                   Navigator.pop(context, result);
+                  Navigator.pop(context, result);
                 }
               }
             },

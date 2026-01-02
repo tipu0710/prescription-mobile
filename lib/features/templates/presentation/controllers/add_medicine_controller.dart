@@ -170,6 +170,11 @@ class AddMedicineController extends _$AddMedicineController {
     }
   }
 
+  void reset() {
+    state = const AddMedicineState();
+    _updateSuggestions(null);
+  }
+
   void onSearchQueryChanged(String query) {
     state = state.copyWith(searchQuery: query);
 

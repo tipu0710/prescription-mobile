@@ -10,10 +10,10 @@ import 'package:babosthapotro/features/home/domain/entities/create_template_requ
 import 'package:babosthapotro/features/home/domain/entities/investigation.dart';
 import 'package:babosthapotro/features/home/data/repositories/home_repository.dart';
 import '../models/ui_medicine.dart';
-import '../widgets/add_medicine_bottom_sheet.dart';
-import '../widgets/add_investigation_bottom_sheet.dart';
-import '../widgets/investigation_list.dart';
-import '../widgets/medicine_list.dart';
+import '../widgets/medicine/add_medicine_bottom_sheet.dart';
+import '../widgets/investigation/add_investigation_bottom_sheet.dart';
+import '../widgets/investigation/investigation_list.dart';
+import '../widgets/medicine/medicine_list.dart';
 
 class TemplatesPage extends ConsumerStatefulWidget {
   const TemplatesPage({super.key});

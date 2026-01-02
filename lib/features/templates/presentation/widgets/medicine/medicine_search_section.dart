@@ -59,21 +59,23 @@ class _MedicineSearchSectionState extends ConsumerState<MedicineSearchSection> {
     // This switches the widget in the tree, which is why we need addPostFrameCallback in onSelected
     // Use RawAutocomplete always to prevent unmounting issues
 
-    // Update controller text if it doesn't match state (e.g. cleared externally)
-    // We check purely for searchQuery here because if selectedMedicine was not null, we'd be in the block above.
-    // Update controller text if it doesn't match state (e.g. cleared externally)
-    // We check purely for searchQuery here because if selectedMedicine was not null, we'd be in the block above.
-    if (_controller.text != state.searchQuery &&
-        state.selectedMedicine == null) {
-      if (state.searchQuery.isEmpty && _controller.text.isNotEmpty) {
-        _controller.text = '';
+    ref.listen(addMedicineControllerProvider, (previous, next) {
+      if (previous?.selectedMedicine != next.selectedMedicine ||
+          previous?.searchQuery != next.searchQuery) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (next.selectedMedicine != null) {
+            final expected = _displayStringForOption(next.selectedMedicine!);
+            if (_controller.text != expected) {
+              _controller.text = expected;
+            }
+          } else if (_controller.text != next.searchQuery &&
+              next.searchQuery.isEmpty) {
+            _controller.text = next.searchQuery;
+          }
+        });
       }
-    } else if (state.selectedMedicine != null) {
-      final expected = _displayStringForOption(state.selectedMedicine!);
-      if (_controller.text != expected) {
-        _controller.text = expected;
-      }
-    }
+    });
 
     return RawAutocomplete<Medicine>(
       textEditingController: _controller,
@@ -188,10 +190,8 @@ class _MedicineSearchSectionState extends ConsumerState<MedicineSearchSection> {
               ? IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () {
-                    // Clear selection
-                    ref
-                        .read(addMedicineControllerProvider.notifier)
-                        .onSearchQueryChanged('');
+                    // Clear selection and reset form
+                    ref.read(addMedicineControllerProvider.notifier).reset();
                     controller.clear();
                   },
                 )
