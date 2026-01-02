@@ -22,6 +22,8 @@ import '../../features/home/domain/entities/create_template_request.dart';
 import '../../features/home/domain/entities/medicine.dart';
 import '../../features/home/domain/entities/investigation.dart';
 
+import '../../features/home/domain/entities/missing_medicine.dart';
+
 part 'api_client.g.dart';
 
 @RestApi()
@@ -112,6 +114,9 @@ abstract class ApiClient {
     @Query('q') String? search,
     @Query('page') int? page,
   );
+
+  @POST('/api/medicines/missing-medicines/')
+  Future<void> createMissingMedicine(@Body() MissingMedicine medicine);
 }
 
 @Riverpod(keepAlive: true)

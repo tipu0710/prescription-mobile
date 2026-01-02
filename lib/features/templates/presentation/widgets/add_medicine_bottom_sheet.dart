@@ -1,3 +1,4 @@
+import 'package:babosthapotro/features/home/domain/entities/missing_medicine.dart';
 import 'package:babosthapotro/features/templates/data/datasources/dosage_data_source.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,8 +28,8 @@ class _AddMedicineBottomSheetState
   final _takingTimeController = TextEditingController();
   final _durationController = TextEditingController();
   final _routeController = TextEditingController();
-  final _instructionController = TextEditingController();
-  final _volumeController = TextEditingController();
+  final _instructionController = TextEditingController(); // Restored
+  final _volumeController = TextEditingController(); // Restored
 
   final _dosageFocus = FocusNode();
   final _takingTimeFocus = FocusNode();
@@ -36,6 +37,18 @@ class _AddMedicineBottomSheetState
   final _routeFocus = FocusNode();
   final _instructionFocus = FocusNode();
   final _volumeFocus = FocusNode();
+  final _strengthFocus = FocusNode();
+
+  // For manual entry
+  final _formController = TextEditingController();
+  final _strengthController = TextEditingController();
+  final _formFocus = FocusNode();
+  bool _isManualEntry =
+      true; // Default to manual until a search result is selected
+  String _searchQuery = ''; // Track input for manual entry
+  bool _hasSearchResults = false; // Track if search returned results
+
+  final List<String> _dosageForms = dosageFormMap.keys.toList()..sort();
 
   // Source of truth for suggestions (unfiltered)
   List<String> _sourceDosages = [];
@@ -45,7 +58,6 @@ class _AddMedicineBottomSheetState
   List<String> _sourceDurations = [];
 
   // Displayed suggestions (filtered)
-
   List<String> _suggestedRoutes = [];
   List<String> _suggestedDurations = [];
 
@@ -69,10 +81,12 @@ class _AddMedicineBottomSheetState
     super.initState();
     _routeController.addListener(_filterRoutes);
     _durationController.addListener(_filterDurations);
+    _formController.addListener(_onFormChaanged);
 
     if (widget.initialMedicine != null) {
       final m = widget.initialMedicine!;
       _selectedMedicine = m.medicine;
+      _searchQuery = m.medicine.brandName;
       _dosageController.text = m.dosage;
       _takingTimeController.text = m.takingTime;
       _durationController.text = m.duration;
@@ -93,18 +107,24 @@ class _AddMedicineBottomSheetState
   void dispose() {
     _routeController.removeListener(_filterRoutes);
     _durationController.removeListener(_filterDurations);
+    _formController.removeListener(_onFormChaanged);
     _dosageController.dispose();
     _takingTimeController.dispose();
     _durationController.dispose();
     _routeController.dispose();
-    _instructionController.dispose();
-    _volumeController.dispose();
+    _instructionController.dispose(); // Restored
+    _volumeController.dispose(); // Restored
+    _formController.dispose();
+    _strengthController.dispose();
+
     _dosageFocus.dispose();
+    _formFocus.dispose();
     _takingTimeFocus.dispose();
     _durationFocus.dispose();
     _routeFocus.dispose();
     _instructionFocus.dispose();
     _volumeFocus.dispose();
+    _strengthFocus.dispose();
     super.dispose();
   }
 
@@ -262,10 +282,27 @@ class _AddMedicineBottomSheetState
     });
   }
 
-  void _updateSuggestions(Medicine medicine, {bool clearValues = false}) {
+  void _onFormChaanged() {
+    setState(() {}); // Rebuild for bIsOral check
+    _updateSuggestions(null);
+  }
+
+  void _updateSuggestions(Medicine? medicine, {bool clearValues = false}) {
+    if (medicine != null) {
+      _formController.text = medicine.dosageForm;
+      _strengthController.text = medicine.strength;
+      if (medicine.id != 0) {
+        _isManualEntry = false;
+      } else {
+        _isManualEntry = true;
+      }
+    }
+
+    final form = medicine?.dosageForm ?? _formController.text;
+    final generic = medicine?.genericName ?? '';
     final suggestions = getDosageSuggestions(
-      dosageForm: medicine.dosageForm,
-      genericName: medicine.genericName,
+      dosageForm: form,
+      genericName: generic,
       lang: 'bn',
     );
 
@@ -296,8 +333,7 @@ class _AddMedicineBottomSheetState
           _routeController.text = _sourceRoutes.first;
         }
       } else {
-        if (_routeController.text.isEmpty &&
-            isOralDosageForm(medicine.dosageForm)) {
+        if (_routeController.text.isEmpty && isOralDosageForm(form)) {
           _routeController.text = 'Oral';
         }
       }
@@ -327,7 +363,12 @@ class _AddMedicineBottomSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Add Medicine', style: context.textStyle.headlineSmall),
+              Text(
+                widget.initialMedicine != null
+                    ? 'Update Medicine'
+                    : 'Add Medicine',
+                style: context.textStyle.headlineSmall,
+              ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
@@ -359,12 +400,32 @@ class _AddMedicineBottomSheetState
                             '${option.brandName} - ${option.strength} (${option.dosageForm})',
                         optionsBuilder:
                             (TextEditingValue textEditingValue) async {
-                              if (textEditingValue.text.length < 2) {
+                              final query = textEditingValue.text;
+                              if (query.isEmpty) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  if (mounted && _hasSearchResults) {
+                                    setState(() => _hasSearchResults = false);
+                                  }
+                                });
                                 return const Iterable<Medicine>.empty();
                               }
                               final response = await ref
                                   .read(homeRepositoryProvider)
-                                  .getMedicines(search: textEditingValue.text);
+                                  .getMedicines(search: query);
+
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) {
+                                  final hasResults = response.isNotEmpty;
+                                  if (_hasSearchResults != hasResults) {
+                                    setState(
+                                      () => _hasSearchResults = hasResults,
+                                    );
+                                  }
+                                }
+                              });
+
                               return response;
                             },
                         optionsViewBuilder: (context, onSelected, options) {
@@ -436,8 +497,16 @@ class _AddMedicineBottomSheetState
                           );
                         },
                         onSelected: (Medicine selection) {
-                          setState(() => _selectedMedicine = selection);
-                          _updateSuggestions(selection, clearValues: true);
+                          setState(() {
+                            _selectedMedicine = selection;
+                            _searchQuery = selection.brandName; // Sync query
+                            _isManualEntry = false;
+                            _volumeController.clear();
+                            _formController.text = selection.dosageForm;
+                            _strengthController.text = selection.strength;
+                            _updateSuggestions(selection, clearValues: true);
+                          });
+                          _dosageFocus.requestFocus();
                         },
                         fieldViewBuilder:
                             (
@@ -449,19 +518,173 @@ class _AddMedicineBottomSheetState
                               return CustomTextFormField(
                                 controller: controller,
                                 focusNode: focusNode,
-                                hintText: 'Search Medicine',
-                                validator: (v) => _selectedMedicine == null
-                                    ? 'Please select a medicine'
-                                    : null,
+                                hintText: 'Brand Name (e.g. Napa)',
+                                textInputAction: TextInputAction.next,
+                                onChanged: (val) {
+                                  setState(
+                                    () => _searchQuery = val,
+                                  ); // Track text
+
+                                  if (_selectedMedicine != null &&
+                                      val != _selectedMedicine!.brandName) {
+                                    setState(() {
+                                      _selectedMedicine = null;
+                                      _isManualEntry = true;
+                                      _formController.clear();
+                                      _strengthController.clear();
+                                    });
+                                  }
+                                },
+                                validator: (v) =>
+                                    v!.isEmpty ? 'Required' : null,
                               );
                             },
                       ),
+
+                    const Gap(12),
+
+                    // Manual Entry Fields (Form + Strength)
+                    if (_isManualEntry &&
+                        (_searchQuery.isEmpty || !_hasSearchResults)) ...[
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          return RawAutocomplete<String>(
+                            textEditingController: _formController,
+                            focusNode: _formFocus,
+                            optionsBuilder:
+                                (TextEditingValue textEditingValue) {
+                                  if (textEditingValue.text.isEmpty) {
+                                    return _dosageForms;
+                                  }
+                                  final query = textEditingValue.text
+                                      .toLowerCase();
+                                  return _dosageForms.where((String option) {
+                                    return option.toLowerCase().contains(query);
+                                  }).toList()..sort((a, b) {
+                                    final aLower = a.toLowerCase();
+                                    final bLower = b.toLowerCase();
+
+                                    // 1. Exact match (highest priority)
+                                    if (aLower == query && bLower != query) {
+                                      return -1;
+                                    }
+                                    if (bLower == query && aLower != query) {
+                                      return 1;
+                                    }
+
+                                    // 2. Starts with (second priority)
+                                    final aStarts = aLower.startsWith(query);
+                                    final bStarts = bLower.startsWith(query);
+                                    if (aStarts && !bStarts) return -1;
+                                    if (!aStarts && bStarts) return 1;
+
+                                    // 3. Alphabetical fallback
+                                    return a.compareTo(b);
+                                  });
+                                },
+                            optionsViewBuilder:
+                                (
+                                  BuildContext context,
+                                  AutocompleteOnSelected<String> onSelected,
+                                  Iterable<String> options,
+                                ) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Material(
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      color: colors.card,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: 200,
+                                          maxWidth: constraints.maxWidth,
+                                        ),
+                                        child: ListView.separated(
+                                          padding: EdgeInsets.zero,
+                                          shrinkWrap: true,
+                                          itemCount: options.length,
+                                          separatorBuilder: (_, _) => Divider(
+                                            height: 1,
+                                            color: colors.border,
+                                          ),
+                                          itemBuilder: (context, index) {
+                                            final option = options.elementAt(
+                                              index,
+                                            );
+                                            return InkWell(
+                                              onTap: () => onSelected(option),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(
+                                                  12,
+                                                ),
+                                                child: Text(
+                                                  option,
+                                                  style: context
+                                                      .textStyle
+                                                      .bodyMedium,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                            onSelected: (String selection) {
+                              _formController.text = selection;
+                              _strengthFocus.requestFocus();
+                            },
+                            fieldViewBuilder:
+                                (
+                                  context,
+                                  controller,
+                                  focusNode,
+                                  onEditingComplete,
+                                ) {
+                                  return CustomTextFormField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    hintText: 'Form',
+                                    textInputAction: TextInputAction.next,
+                                    validator: (v) =>
+                                        _isManualEntry && v!.isEmpty
+                                        ? 'Required'
+                                        : null,
+                                    onEditingComplete: () {
+                                      _strengthFocus.requestFocus();
+                                    },
+                                  );
+                                },
+                          );
+                        },
+                      ),
+                      const Gap(12),
+                      CustomTextFormField(
+                        controller: _strengthController,
+                        focusNode: _strengthFocus,
+                        hintText: 'Strength',
+                        textInputAction: TextInputAction.next,
+                        validator: (v) =>
+                            _isManualEntry && v!.isEmpty ? 'Required' : null,
+                        onEditingComplete: () {
+                          _dosageFocus.requestFocus();
+                        },
+                      ),
+                      // Remove Gap(12) here because it exists after the if/else block in original code
+                      // But looking at original code line 477: const Gap(12) follows Autocomplete.
+                      // So I should keep a Gap(12) after my inserted block if I replace Autocomplete.
+                    ],
                     const Gap(12),
 
                     // Dosage
                     Builder(
                       builder: (context) {
-                        final dosageForm = _selectedMedicine?.dosageForm;
+                        final dosageForm =
+                            _selectedMedicine?.dosageForm ??
+                            _formController.text;
                         final bIsInfusion = isInfusion(dosageForm);
                         final bIsOral = isOralDosageForm(dosageForm);
                         final bIsSuppository = isSuppository(dosageForm);
@@ -956,12 +1179,39 @@ class _AddMedicineBottomSheetState
           const Gap(16),
           CustomElevatedButton(
             onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  _selectedMedicine != null) {
+              if (_formKey.currentState!.validate()) {
+                Medicine medicineToSave;
+
+                if (_selectedMedicine != null) {
+                  medicineToSave = _selectedMedicine!;
+                } else {
+                  medicineToSave = Medicine(
+                    id: 0,
+                    brandName: _searchQuery,
+                    genericName: '',
+                    strength: _strengthController.text,
+                    manufacturer: '',
+                    dosageForm: _formController.text,
+                  );
+
+                  // Create missing medicine in backend if fresh manual entry
+                  if (widget.initialMedicine == null) {
+                    ref
+                        .read(homeRepositoryProvider)
+                        .createMissingMedicine(
+                          MissingMedicine(
+                            brandName: _searchQuery,
+                            dosageForm: _formController.text,
+                            strength: _strengthController.text,
+                          ),
+                        );
+                  }
+                }
+
                 Navigator.pop(
                   context,
                   UiMedicine(
-                    medicine: _selectedMedicine!,
+                    medicine: medicineToSave,
                     volume: _volumeController.text.isNotEmpty
                         ? _volumeController.text
                         : null,
@@ -976,7 +1226,9 @@ class _AddMedicineBottomSheetState
                 );
               }
             },
-            text: 'Add Medicine',
+            text: widget.initialMedicine != null
+                ? 'Update Medicine'
+                : 'Add Medicine',
           ),
           const Gap(16),
         ],
