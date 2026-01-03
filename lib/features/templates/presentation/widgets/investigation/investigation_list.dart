@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:babosthapotro/theme/theme_extensions.dart';
 import 'package:babosthapotro/features/home/domain/entities/investigation.dart';
+import 'package:babosthapotro/features/home/domain/entities/missing_investigation.dart';
+import 'package:babosthapotro/features/home/data/repositories/home_repository.dart';
 
 import 'package:babosthapotro/features/templates/presentation/controllers/investigation_search_controller.dart';
 import 'package:babosthapotro/presentation/widgets/custom_text_form_field.dart';
@@ -71,8 +73,19 @@ class _InvestigationListState extends ConsumerState<InvestigationList> {
             debugPrint('Search results: ${state.value?.length}');
             return state.value ?? [];
           },
-          onSelected: (Investigation selection) {
-            widget.onAdd(selection);
+          onSelected: (Investigation selection) async {
+            if (selection.id == -1) {
+              // Create missing investigation
+              await ref
+                  .read(homeRepositoryProvider)
+                  .createMissingInvestigation(
+                    MissingInvestigation(name: selection.name),
+                  );
+              // Add with id 0 (convention for missing items)
+              widget.onAdd(selection.copyWith(id: 0));
+            } else {
+              widget.onAdd(selection);
+            }
             _searchController.clear();
             ref.read(investigationSearchControllerProvider.notifier).clear();
             _focusNode.requestFocus(); // Keep focus for rapid entry

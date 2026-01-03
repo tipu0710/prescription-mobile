@@ -21,6 +21,7 @@ import '../../features/home/domain/entities/prescription_template.dart';
 import '../../features/home/domain/entities/create_template_request.dart';
 import '../../features/home/domain/entities/medicine.dart';
 import '../../features/home/domain/entities/investigation.dart';
+import '../../features/home/domain/entities/missing_investigation.dart';
 
 import '../../features/home/domain/entities/missing_medicine.dart';
 
@@ -117,6 +118,11 @@ abstract class ApiClient {
 
   @POST('/api/medicines/missing-medicines/')
   Future<void> createMissingMedicine(@Body() MissingMedicine medicine);
+
+  @POST('/api/investigations/missing-investigations/')
+  Future<void> createMissingInvestigation(
+    @Body() MissingInvestigation investigation,
+  );
 }
 
 @Riverpod(keepAlive: true)

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:babosthapotro/core/utils/debouncer.dart';
 import 'package:babosthapotro/features/home/data/repositories/home_repository.dart';
 import 'package:babosthapotro/features/home/domain/entities/medicine.dart';
 import 'package:babosthapotro/features/templates/presentation/controllers/add_medicine_controller.dart';
@@ -20,6 +22,7 @@ class MedicineSearchSection extends ConsumerStatefulWidget {
 class _MedicineSearchSectionState extends ConsumerState<MedicineSearchSection> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  final _debouncer = Debouncer(milliseconds: 500);
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _MedicineSearchSectionState extends ConsumerState<MedicineSearchSection> {
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _debouncer.dispose();
     super.dispose();
   }
 
@@ -95,22 +99,27 @@ class _MedicineSearchSectionState extends ConsumerState<MedicineSearchSection> {
           return const Iterable<Medicine>.empty();
         }
 
-        final response = await ref
-            .read(homeRepositoryProvider)
-            .getMedicines(search: query);
+        final completer = Completer<List<Medicine>>();
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            final hasResults = response.isNotEmpty;
-            if (state.hasSearchResults != hasResults) {
-              ref
-                  .read(addMedicineControllerProvider.notifier)
-                  .setHasSearchResults(hasResults);
+        _debouncer.run(() async {
+          final response = await ref
+              .read(homeRepositoryProvider)
+              .getMedicines(search: query);
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              final hasResults = response.isNotEmpty;
+              if (state.hasSearchResults != hasResults) {
+                ref
+                    .read(addMedicineControllerProvider.notifier)
+                    .setHasSearchResults(hasResults);
+              }
             }
-          }
+          });
+          completer.complete(response);
         });
 
-        return response;
+        return completer.future;
       },
       optionsViewBuilder: (context, onSelected, options) {
         return Align(

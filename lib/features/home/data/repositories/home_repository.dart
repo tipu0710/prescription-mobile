@@ -8,6 +8,7 @@ import '../../domain/entities/medicine.dart';
 import '../../domain/entities/prescription_template.dart';
 import '../../domain/entities/sponsored.dart';
 import '../../domain/entities/missing_medicine.dart';
+import '../../domain/entities/missing_investigation.dart';
 import '../../domain/repositories/home_repository.dart';
 
 part 'home_repository.g.dart';
@@ -61,5 +62,12 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<void> createMissingMedicine(MissingMedicine medicine) async {
     return _apiClient.createMissingMedicine(medicine);
+  }
+
+  @override
+  Future<void> createMissingInvestigation(
+    MissingInvestigation investigation,
+  ) async {
+    return _apiClient.createMissingInvestigation(investigation);
   }
 }

@@ -6,6 +6,7 @@ import '../entities/investigation.dart';
 import '../entities/medicine.dart';
 import '../entities/prescription_template.dart';
 import '../entities/missing_medicine.dart';
+import '../../domain/entities/missing_investigation.dart';
 
 abstract class HomeRepository {
   Future<PaginatedResponse<PrescriptionTemplate>> getTemplates({
@@ -24,4 +25,6 @@ abstract class HomeRepository {
   Future<List<Investigation>> getInvestigations({String? search, int? page});
 
   Future<void> createMissingMedicine(MissingMedicine medicine);
+
+  Future<void> createMissingInvestigation(MissingInvestigation investigation);
 }

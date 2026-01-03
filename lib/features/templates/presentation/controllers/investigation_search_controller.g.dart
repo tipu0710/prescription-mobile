@@ -39,7 +39,7 @@ final class InvestigationSearchControllerProvider
 }
 
 String _$investigationSearchControllerHash() =>
-    r'a734ab6874d2b1803de841d1cffe664c212ba693';
+    r'5cbbe0e94aafde605c40175a28ab873f1ec50393';
 
 abstract class _$InvestigationSearchController
     extends $AsyncNotifier<List<Investigation>> {
