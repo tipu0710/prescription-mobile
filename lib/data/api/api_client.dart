@@ -32,94 +32,94 @@ abstract class ApiClient {
   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
 
   // Auth
-  @POST('/api/auth/login/')
+  @POST('/api/v1/auth/login/')
   Future<LoginResponse> login(@Body() LoginRequest body);
 
-  @POST('/api/auth/register/')
+  @POST('/api/v1/auth/register/')
   Future<void> signup(@Body() SignupRequest body);
 
-  @POST('/api/auth/verify/')
+  @POST('/api/v1/auth/verify/')
   Future<void> verify(@Body() VerificationRequest body);
 
-  @POST('/api/auth/resend-otp/')
+  @POST('/api/v1/auth/resend-otp/')
   Future<void> resendOtp(@Body() ResendOtpRequest body);
 
-  @POST('/api/auth/password-reset/request/')
+  @POST('/api/v1/auth/password-reset/request/')
   Future<void> requestPasswordReset(@Body() PasswordResetRequestModel body);
 
-  @POST('/api/auth/password-reset/confirm/')
+  @POST('/api/v1/auth/password-reset/confirm/')
   Future<void> confirmPasswordReset(
     @Body() PasswordResetConfirmRequestModel body,
   );
 
-  @POST('/api/auth/token/refresh/')
+  @POST('/api/v1/auth/token/refresh/')
   Future<RefreshTokenResponse> refreshToken(@Body() RefreshTokenRequest body);
 
-  @GET('/api/user/profile/')
+  @GET('/api/v1/user/profile/')
   Future<UserProfile> getProfile();
 
-  @PATCH('/api/user/profile/')
+  @PATCH('/api/v1/user/profile/')
   Future<UserProfile> updateProfile(@Body() FormData data);
 
-  @GET('/api/user/degrees/')
+  @GET('/api/v1/user/degrees/')
   Future<List<Degree>> getDegrees();
 
-  @POST('/api/user/degrees/')
+  @POST('/api/v1/user/degrees/')
   Future<Degree> createDegree(@Body() Degree degree);
 
-  @PATCH('/api/user/degrees/{id}/')
+  @PATCH('/api/v1/user/degrees/{id}/')
   Future<Degree> updateDegree(@Path('id') int id, @Body() Degree degree);
 
-  @DELETE('/api/user/degrees/{id}/')
+  @DELETE('/api/v1/user/degrees/{id}/')
   Future<void> deleteDegree(@Path('id') int id);
 
-  @GET('/api/user/chambers/')
+  @GET('/api/v1/user/chambers/')
   Future<List<Chamber>> getChambers();
 
-  @POST('/api/user/chambers/')
+  @POST('/api/v1/user/chambers/')
   Future<Chamber> createChamber(@Body() Chamber chamber);
 
-  @PATCH('/api/user/chambers/{id}/')
+  @PATCH('/api/v1/user/chambers/{id}/')
   Future<Chamber> updateChamber(@Path('id') int id, @Body() Chamber chamber);
 
-  @DELETE('/api/user/chambers/{id}/')
+  @DELETE('/api/v1/user/chambers/{id}/')
   Future<void> deleteChamber(@Path('id') int id);
 
   // Home
-  @GET('/api/prescriptions/templates/')
+  @GET('/api/v1/prescriptions/templates/')
   Future<PaginatedResponse<PrescriptionTemplate>> getTemplates(
     @Query('search') String? search,
     @Query('page') int? page,
   );
 
-  @GET('/api/sponsored/serve/')
+  @GET('/api/v1/sponsored/serve/')
   Future<Sponsored> getSponsored();
 
-  @POST('/api/sponsored/{id}/click/')
+  @POST('/api/v1/sponsored/{id}/click/')
   Future<void> trackSponsoredClick(@Path('id') int id);
 
-  @DELETE('/api/prescriptions/templates/{id}/')
+  @DELETE('/api/v1/prescriptions/templates/{id}/')
   Future<void> deleteTemplate(@Path('id') int id);
 
-  @POST('/api/prescriptions/templates/')
+  @POST('/api/v1/prescriptions/templates/')
   Future<void> createTemplate(@Body() CreateTemplateRequest body);
 
-  @GET('/api/medicines/search/')
+  @GET('/api/v1/medicines/search/')
   Future<List<Medicine>> getMedicines(
     @Query('q') String? search,
     @Query('page') int? page,
   );
 
-  @GET('/api/investigations/search/')
+  @GET('/api/v1/investigations/search/')
   Future<List<Investigation>> getInvestigations(
     @Query('q') String? search,
     @Query('page') int? page,
   );
 
-  @POST('/api/medicines/missing-medicines/')
+  @POST('/api/v1/medicines/missing-medicines/')
   Future<void> createMissingMedicine(@Body() MissingMedicine medicine);
 
-  @POST('/api/investigations/missing-investigations/')
+  @POST('/api/v1/investigations/missing-investigations/')
   Future<void> createMissingInvestigation(
     @Body() MissingInvestigation investigation,
   );

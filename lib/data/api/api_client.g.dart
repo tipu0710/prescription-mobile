@@ -29,7 +29,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/login/',
+            '/api/v1/auth/login/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -56,7 +56,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/register/',
+            '/api/v1/auth/register/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -75,7 +75,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/verify/',
+            '/api/v1/auth/verify/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -94,7 +94,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/resend-otp/',
+            '/api/v1/auth/resend-otp/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -113,7 +113,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/password-reset/request/',
+            '/api/v1/auth/password-reset/request/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -134,7 +134,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/password-reset/confirm/',
+            '/api/v1/auth/password-reset/confirm/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -153,7 +153,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/auth/token/refresh/',
+            '/api/v1/auth/token/refresh/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -180,7 +180,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/profile/',
+            '/api/v1/user/profile/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -207,7 +207,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/profile/',
+            '/api/v1/user/profile/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -234,7 +234,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/degrees/',
+            '/api/v1/user/degrees/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -263,7 +263,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/degrees/',
+            '/api/v1/user/degrees/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -290,7 +290,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/degrees/${id}/',
+            '/api/v1/user/degrees/${id}/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -317,7 +317,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/degrees/${id}/',
+            '/api/v1/user/degrees/${id}/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -336,7 +336,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/chambers/',
+            '/api/v1/user/chambers/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -365,7 +365,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/chambers/',
+            '/api/v1/user/chambers/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -392,7 +392,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/chambers/${id}/',
+            '/api/v1/user/chambers/${id}/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -419,7 +419,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/user/chambers/${id}/',
+            '/api/v1/user/chambers/${id}/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -442,7 +442,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/prescriptions/templates/',
+            '/api/v1/prescriptions/templates/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -472,7 +472,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/sponsored/serve/',
+            '/api/v1/sponsored/serve/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -499,7 +499,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/sponsored/${id}/click/',
+            '/api/v1/sponsored/${id}/click/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -518,7 +518,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/prescriptions/templates/${id}/',
+            '/api/v1/prescriptions/templates/${id}/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -537,7 +537,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/prescriptions/templates/',
+            '/api/v1/prescriptions/templates/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -557,7 +557,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/medicines/search/',
+            '/api/v1/medicines/search/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -590,7 +590,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/investigations/search/',
+            '/api/v1/investigations/search/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -619,7 +619,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/medicines/missing-medicines/',
+            '/api/v1/medicines/missing-medicines/',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -640,7 +640,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/investigations/missing-investigations/',
+            '/api/v1/investigations/missing-investigations/',
             queryParameters: queryParameters,
             data: _data,
           )
