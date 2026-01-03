@@ -11,7 +11,7 @@ import 'package:babosthapotro/features/home/domain/entities/investigation.dart';
 import 'package:babosthapotro/features/home/data/repositories/home_repository.dart';
 import '../models/ui_medicine.dart';
 import '../widgets/medicine/add_medicine_bottom_sheet.dart';
-import '../widgets/investigation/add_investigation_bottom_sheet.dart';
+
 import '../widgets/investigation/investigation_list.dart';
 import '../widgets/medicine/medicine_list.dart';
 
@@ -121,16 +121,10 @@ class _TemplatesPageState extends ConsumerState<TemplatesPage> {
     }
   }
 
-  void _addInvestigation() async {
-    final result = await showModalBottomSheet<Investigation>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => const AddInvestigationBottomSheet(),
-    );
-    if (result != null) {
+  void _onInvestigationAdded(Investigation investigation) {
+    if (!_investigations.any((i) => i.id == investigation.id)) {
       setState(() {
-        _investigations.add(result);
+        _investigations.add(investigation);
       });
     }
   }
@@ -180,7 +174,7 @@ class _TemplatesPageState extends ConsumerState<TemplatesPage> {
               // Investigations List
               InvestigationList(
                 investigations: _investigations,
-                onAdd: _addInvestigation,
+                onAdd: _onInvestigationAdded,
                 onDelete: (index) =>
                     setState(() => _investigations.removeAt(index)),
               ),

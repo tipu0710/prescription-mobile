@@ -367,11 +367,13 @@ class AddMedicineController extends _$AddMedicineController {
     if (queryDigitsOnly.isNotEmpty) {
       final sDigitsOnly = sLower.replaceAll(RegExp(r'[^0-9০-৯]'), '');
       if (sDigitsOnly == queryDigitsOnly ||
-          sDigitsOnly == queryBanglaDigitsOnly)
+          sDigitsOnly == queryBanglaDigitsOnly) {
         return 3;
+      }
       if (sDigitsOnly.contains(queryDigitsOnly) ||
-          sDigitsOnly.contains(queryBanglaDigitsOnly))
+          sDigitsOnly.contains(queryBanglaDigitsOnly)) {
         return 2;
+      }
     }
 
     // 3. Contains match
